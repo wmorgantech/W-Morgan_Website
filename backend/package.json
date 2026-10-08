@@ -1,0 +1,52 @@
+{
+  "name": "backend",
+  "version": "0.0.1",
+  "private": true,
+  "description": "WMorgan Technologies Express API",
+  "author": "",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": "20.20.2"
+  },
+  "scripts": {
+    "build": "node --check src/server.js",
+    "start": "node src/server.js",
+    "start:dev": "node --watch src/server.js",
+    "start:prod": "node src/server.js",
+    "db:generate": "prisma generate",
+    "db:migrate:dev": "prisma migrate dev",
+    "db:migrate:deploy": "prisma migrate deploy",
+    "db:seed-admin": "node prisma/seed-admin.js",
+    "format": "prettier --write \"src/**/*.js\" \"test/**/*.js\" \"prisma/seed-admin.js\" \"prisma.config.mjs\"",
+    "lint": "eslint \"src/**/*.js\" \"test/**/*.js\" prisma/seed-admin.js",
+    "test": "node --test",
+    "test:watch": "node --test --watch"
+  },
+  "dependencies": {
+    "@prisma/client": "6.19.3",
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.6",
+    "dotenv": "^16.6.1",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.7.1",
+    "express-validator": "^7.2.1",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.3",
+    "multer": "^2.4.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.18.0",
+    "eslint": "^9.18.0",
+    "eslint-config-prettier": "^10.0.1",
+    "eslint-plugin-prettier": "^5.2.2",
+    "globals": "^17.0.0",
+    "prettier": "^3.4.2",
+    "prisma": "6.19.3",
+    "supertest": "^7.0.0"
+  },
+  "overrides": {
+    "@prisma/config": {
+      "deepmerge-ts": "8.0.2"
+    }
+  }
+}

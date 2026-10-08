@@ -1,0 +1,68 @@
+# Dependencies
+**/node_modules/
+
+# Environment files and secrets
+**/.env
+**/.env.*
+
+# Build output
+**/dist/
+**/dist-ssr/
+**/build/
+
+# Caches
+**/.vite/
+**/.cache/
+**/.parcel-cache/
+**/.eslintcache
+
+# Test output
+**/coverage/
+**/.nyc_output/
+**/test-results/
+**/playwright-report/
+
+# Local uploaded files
+/backend/uploads/
+
+# Generated Prisma client output
+/backend/generated/prisma/
+/backend/src/generated/prisma/
+
+# Logs and runtime files
+**/logs/
+**/*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+**/*.pid
+**/*.pid.lock
+**/*.seed
+**/pids/
+
+# Temporary files
+**/.temp/
+**/.tmp/
+**/*.tmp
+**/*.temp
+**/*~
+**/*.swp
+**/*.swo
+
+# Operating system files
+**/.DS_Store
+**/Thumbs.db
+**/Desktop.ini
+
+# IDE and editor files
+**/.idea/
+**/.vscode/*
+!**/.vscode/extensions.json
+!**/.vscode/settings.json
+!**/.vscode/tasks.json
+!**/.vscode/launch.json
+*.suo
+*.user
+*.sln.docstates

@@ -1,0 +1,219 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ========================================
+// ADMIN
+// ========================================
+
+model Admin {
+  id           Int     @id @default(autoincrement())
+  name         String
+  email        String  @unique
+  passwordHash String
+  isActive     Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SiteSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
+// ========================================
+// SERVICE
+// ========================================
+
+model Service {
+  id          Int     @id @default(autoincrement())
+  name        String
+  slug        String  @unique
+  summary     String?
+  description String?
+  icon        String?
+  features    String[] @default([])
+  sortOrder   Int     @default(0)
+  isActive    Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([isActive])
+  @@index([sortOrder])
+}
+
+model Product {
+  id          Int      @id @default(autoincrement())
+  name        String
+  slug        String   @unique
+  category    String
+  description String
+  features    String[] @default([])
+  imageUrl    String?
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([isActive])
+  @@index([sortOrder])
+}
+
+// ========================================
+// PROJECT
+// ========================================
+
+model Project {
+  id          Int     @id @default(autoincrement())
+  title       String
+  slug        String  @unique
+  summary     String?
+  description String?
+  coverImage  String?
+  tags        String[] @default([])
+  clientName  String?
+  projectUrl  String?
+  featured    Boolean @default(false)
+  sortOrder   Int     @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([featured])
+  @@index([sortOrder])
+}
+
+// ========================================
+// TESTIMONIAL
+// ========================================
+
+model Testimonial {
+  id         Int     @id @default(autoincrement())
+  quote      String
+  authorName String
+  role       String?
+  company    String?
+  avatarUrl  String?
+  featured   Boolean @default(false)
+  sortOrder  Int     @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([featured])
+  @@index([sortOrder])
+}
+
+// ========================================
+// CONTACT INQUIRY
+// ========================================
+
+model ContactInquiry {
+  id      Int                  @id @default(autoincrement())
+  name    String
+  email   String
+  phone   String?
+  company String?
+  service String?
+  message String
+  status  ContactInquiryStatus @default(NEW)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([email])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// ========================================
+// JOB OPENING
+// ========================================
+
+model JobOpening {
+  id             Int              @id @default(autoincrement())
+  jobTitle       String
+  slug           String           @unique
+  department     String?
+  experience     String?
+  location       String?
+  employmentType EmploymentType
+  description    String
+  skills         String[]         @default([])
+  status         JobOpeningStatus @default(OPEN)
+
+  applications JobApplication[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([employmentType])
+}
+
+// ========================================
+// JOB APPLICATION
+// ========================================
+
+model JobApplication {
+  id           Int @id @default(autoincrement())
+  jobOpeningId Int
+
+  candidateName String
+  email         String
+  phone         String?
+  coverLetter   String?
+  resumeUrl     String?
+  status        JobApplicationStatus @default(RECEIVED)
+
+  jobOpening JobOpening @relation(fields: [jobOpeningId], references: [id], onDelete: Restrict)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([jobOpeningId])
+  @@index([email])
+  @@index([status])
+}
+
+// ========================================
+// ENUMS
+// ========================================
+
+enum ContactInquiryStatus {
+  NEW
+  IN_PROGRESS
+  RESPONDED
+  CLOSED
+}
+
+enum JobOpeningStatus {
+  OPEN
+  CLOSED
+  DRAFT
+}
+
+enum EmploymentType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  INTERNSHIP
+  FREELANCE
+}
+
+enum JobApplicationStatus {
+  RECEIVED
+  REVIEWING
+  SHORTLISTED
+  INTERVIEW
+  SELECTED
+  REJECTED
+}
