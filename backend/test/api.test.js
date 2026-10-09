@@ -466,6 +466,15 @@ describe('Express API', () => {
       })
       .expect(404);
 
+    await request(app).get('/api/settings/public').expect(200, {
+      contactEmail: 'info@wmorgantechnologies.com',
+      contactPhone: '+91 98765 43210',
+      contactLocation:
+        'Dno - 333-F2, Geetha Building,\nNehru St, Peranaidu Layout,\nRam Nagar, Coimbatore,\nTamil Nadu 641009',
+      workingHours: 'Mon – Sat · 9:00 AM – 6:00 PM',
+      logoUrl: '',
+    });
+
     await request(app)
       .put('/api/admin/settings')
       .set(authorization)
@@ -476,7 +485,7 @@ describe('Express API', () => {
       })
       .expect(200, {
         contactEmail: 'hello@example.com',
-        contactPhone: '+91 88707 05554',
+        contactPhone: '+91 98765 43210',
         contactLocation:
           'Dno - 333-F2, Geetha Building,\nNehru St, Peranaidu Layout,\nRam Nagar, Coimbatore,\nTamil Nadu 641009',
         workingHours: 'Weekdays',
@@ -486,16 +495,16 @@ describe('Express API', () => {
       .get('/api/admin/settings')
       .set(authorization)
       .expect(200, {
-        contactEmail: 'info@wmorgantech.com',
-        contactPhone: '+91 88707 05554',
+        contactEmail: 'hello@example.com',
+        contactPhone: '+91 98765 43210',
         contactLocation:
           'Dno - 333-F2, Geetha Building,\nNehru St, Peranaidu Layout,\nRam Nagar, Coimbatore,\nTamil Nadu 641009',
         workingHours: 'Weekdays',
         logoUrl: '/api/uploads/site-logo.svg',
       });
     await request(app).get('/api/settings/public').expect(200, {
-      contactEmail: 'info@wmorgantech.com',
-      contactPhone: '+91 88707 05554',
+      contactEmail: 'hello@example.com',
+      contactPhone: '+91 98765 43210',
       contactLocation:
         'Dno - 333-F2, Geetha Building,\nNehru St, Peranaidu Layout,\nRam Nagar, Coimbatore,\nTamil Nadu 641009',
       workingHours: 'Weekdays',

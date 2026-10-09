@@ -27,13 +27,13 @@ const serviceOptions = [
 ];
 
 const OFFICE_ADDRESS =
-  "DNo - 333-F2, Geetha Building, Nehru St, Peranaidu Layout, Ram Nagar, Coimbatore, Tamil Nadu 641009";
+  "Dno - 333-F2, Geetha Building,\nNehru St, Peranaidu Layout,\nRam Nagar, Coimbatore,\nTamil Nadu 641009";
 
 const MAP_URL =
-  "https://www.google.com/maps/search/?api=1&query=DNo%20333-F2%2C%20Geetha%20Building%2C%20Nehru%20St%2C%20Peranaidu%20Layout%2C%20Ram%20Nagar%2C%20Coimbatore%2C%20Tamil%20Nadu%20641009";
+  "https://www.google.com/maps/search/?api=1&query=Dno%20333-F2%2C%20Geetha%20Building%2C%20Nehru%20St%2C%20Peranaidu%20Layout%2C%20Ram%20Nagar%2C%20Coimbatore%2C%20Tamil%20Nadu%20641009";
 
 const MAP_EMBED_URL =
-  "https://www.google.com/maps?q=DNo%20333-F2%2C%20Geetha%20Building%2C%20Nehru%20St%2C%20Peranaidu%20Layout%2C%20Ram%20Nagar%2C%20Coimbatore%2C%20Tamil%20Nadu%20641009&output=embed";
+  "https://www.google.com/maps?q=Dno%20333-F2%2C%20Geetha%20Building%2C%20Nehru%20St%2C%20Peranaidu%20Layout%2C%20Ram%20Nagar%2C%20Coimbatore%2C%20Tamil%20Nadu%20641009&output=embed";
 
 const fieldClass =
   "block w-full rounded-xl border border-[#0e1411]/15 bg-white px-4 py-3 text-sm text-[#0e1411] outline-none transition placeholder:text-[#0e1411]/35 hover:border-[#0e1411]/30 focus:border-[#176b4d] focus:ring-4 focus:ring-[#2faa7d]/15";
@@ -427,7 +427,7 @@ export default function Contact() {
                         value={formData.phone}
                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                         className={fieldClass}
-                        placeholder="+91 88707 05554"
+                        placeholder="+91 98765 43210"
                       />
                     </div>
 
