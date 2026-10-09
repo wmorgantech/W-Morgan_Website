@@ -476,7 +476,7 @@ describe('Express API', () => {
       })
       .expect(200, {
         contactEmail: 'hello@example.com',
-        contactPhone: '+91 +91 88707 05554',
+        contactPhone: '+91 88707 05554',
         contactLocation:
           'Dno - 333-F2, Geetha Building,\nNehru St, Peranaidu Layout,\nRam Nagar, Coimbatore,\nTamil Nadu 641009',
         workingHours: 'Weekdays',
@@ -487,7 +487,7 @@ describe('Express API', () => {
       .set(authorization)
       .expect(200, {
         contactEmail: 'info@wmorgantech.com',
-        contactPhone: '+91 +91 88707 05554',
+        contactPhone: '+91 88707 05554',
         contactLocation:
           'Dno - 333-F2, Geetha Building,\nNehru St, Peranaidu Layout,\nRam Nagar, Coimbatore,\nTamil Nadu 641009',
         workingHours: 'Weekdays',
@@ -495,7 +495,7 @@ describe('Express API', () => {
       });
     await request(app).get('/api/settings/public').expect(200, {
       contactEmail: 'info@wmorgantech.com',
-      contactPhone: '+91 +91 88707 05554',
+      contactPhone: '+91 88707 05554',
       contactLocation:
         'Dno - 333-F2, Geetha Building,\nNehru St, Peranaidu Layout,\nRam Nagar, Coimbatore,\nTamil Nadu 641009',
       workingHours: 'Weekdays',

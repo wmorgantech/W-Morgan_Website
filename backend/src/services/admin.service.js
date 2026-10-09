@@ -1,6 +1,6 @@
 const DEFAULT_PUBLIC_SETTINGS = {
   contactEmail: 'info@wmorgantech.com',
-  contactPhone: '+91 +91 88707 05554',
+  contactPhone: '+91 88707 05554',
   contactLocation:
     'Dno - 333-F2, Geetha Building,\nNehru St, Peranaidu Layout,\nRam Nagar, Coimbatore,\nTamil Nadu 641009',
   workingHours: 'Mon – Sat · 9:00 AM – 6:00 PM',
