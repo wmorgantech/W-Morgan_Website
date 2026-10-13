@@ -7,6 +7,7 @@ import {
   BriefcaseBusiness,
   MessageSquareQuote,
   Users,
+  UsersRound,
   Mail,
   Settings,
   LogOut,
@@ -41,6 +42,11 @@ const menuItems = [
     name: "Testimonials",
     path: "/testimonials",
     icon: MessageSquareQuote,
+  },
+  {
+    name: "Team Members",
+    path: "/team",
+    icon: UsersRound,
   },
   {
     name: "Careers",

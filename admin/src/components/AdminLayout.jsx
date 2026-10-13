@@ -7,6 +7,7 @@ const pageTitles = {
   "/services": "Services",
   "/portfolio": "Portfolio",
   "/testimonials": "Testimonials",
+  "/team": "Team Members",
   "/careers": "Careers",
   "/contact": "Contact Inquiries",
   "/settings": "Settings",
@@ -33,7 +34,7 @@ export default function AdminLayout({ children }) {
       <div className="admin-workspace">
         <header className="admin-navbar">
           <div>
-            <span className="admin-navbar-eyebrow">WMORGAN TECHNOLOGIES</span>
+            <span className="admin-navbar-eyebrow">W MORGAN TECHNOLOGIES</span>
             <strong>
               Admin workspace
               {pageTitle && (

@@ -31,11 +31,13 @@ const fields = [
   },
   {
     name: "isActive",
-    label: "Visibility",
+    label: "Publishing",
     type: "checkbox",
-    checkboxLabel: "Show on public website",
+    checkboxLabel: "Publish on the public website",
   },
 ];
+
+const statusLabels = { isActive: ["Published", "Unpublished"] };
 
 export default function Products() {
   return (
@@ -51,6 +53,7 @@ export default function Products() {
           { key: "imageUrl", label: "Image", type: "image" },
           { key: "isActive", label: "Status" },
         ]}
+        statusLabels={statusLabels}
         emptyMessage="No products added yet. Add your first product to get started."
       />
     </AdminLayout>

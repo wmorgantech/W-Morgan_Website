@@ -11,15 +11,29 @@ function makeDraft(fields, record = {}) {
   return Object.fromEntries(fields.map(({ name, type }) => {
     const value = record[name];
     if (type === "tags") return [name, Array.isArray(value) ? value.join(", ") : ""];
+    if (type === "lines") return [name, Array.isArray(value) ? value.join("\n") : ""];
     if (type === "checkbox") return [name, Boolean(value)];
     return [name, value ?? ""];
   }));
+}
+
+function tagList(value) {
+  return value.split(",").map((tag) => tag.trim()).filter(Boolean);
+}
+
+function toggleTag(value, tag) {
+  const items = tagList(value);
+  const index = items.findIndex((item) => item.toLowerCase() === tag.toLowerCase());
+  if (index >= 0) items.splice(index, 1);
+  else items.push(tag);
+  return items.join(", ");
 }
 
 function makePayload(fields, draft) {
   return Object.fromEntries(fields.map(({ name, type }) => {
     const value = draft[name];
     if (type === "tags") return [name, value.split(",").map((tag) => tag.trim()).filter(Boolean)];
+    if (type === "lines") return [name, value.split(/\r?\n/).map((line) => line.trim()).filter(Boolean)];
     if (type === "number") return [name, value === "" ? 0 : Number(value)];
     return [name, typeof value === "string" ? value.trim() : value];
   }));
@@ -35,10 +49,12 @@ function formatDate(value) {
   return date.toLocaleDateString(undefined, { day: "2-digit", month: "short", year: "numeric" });
 }
 
-function displayValue(value, key, type) {
+function displayValue(value, key, type, labels) {
   if (type === "date") return value ? formatDate(value) : "—";
   if (Array.isArray(value)) return value.join(", ") || "—";
   if (typeof value === "boolean") {
+    const custom = labels?.[key];
+    if (custom) return value ? custom[0] : custom[1];
     if (key === "featured") return value ? "Featured" : "Not featured";
     return value ? "Active" : "Inactive";
   }
@@ -72,7 +88,7 @@ function humanizeOption(option) {
   return { value, label: label || titleCase(value) };
 }
 
-const STATUS_KEYS = ["status", "isActive", "featured"];
+const STATUS_KEYS = ["status", "isActive", "featured", "published"];
 
 function statusClass(value) {
   return String(value).toLowerCase().replaceAll("_", "-");
@@ -90,7 +106,7 @@ function Thumb({ src, alt = "" }) {
   return <img className="content-thumb" src={src} alt={alt} loading="lazy" onError={() => setFailed(true)} />;
 }
 
-function DetailValue({ item, record }) {
+function DetailValue({ item, record, statusLabels }) {
   const raw = record[item.key];
   const empty = raw === undefined || raw === null || raw === "" || (Array.isArray(raw) && raw.length === 0);
   if (empty) return <span className="detail-muted">Not provided</span>;
@@ -108,9 +124,9 @@ function DetailValue({ item, record }) {
   if (item.type === "date") return formatDate(raw);
   if (item.type === "long") return <span className="detail-long">{raw}</span>;
   if (STATUS_KEYS.includes(item.key)) {
-    return <span className={`content-status ${statusClass(raw)}`}>{displayValue(raw, item.key)}</span>;
+    return <span className={`content-status ${statusClass(raw)}`}>{displayValue(raw, item.key, undefined, statusLabels)}</span>;
   }
-  return <span className="detail-break">{displayValue(raw, item.key, item.type)}</span>;
+  return <span className="detail-break">{displayValue(raw, item.key, item.type, statusLabels)}</span>;
 }
 
 /* ---------------------------------------------------------------
@@ -126,6 +142,7 @@ export default function ContentManager({
   emptyMessage,
   detailFields,
   itemName,
+  statusLabels,
   allowCreate = true,
   allowEdit = true,
   allowDelete = true,
@@ -256,10 +273,10 @@ export default function ContentManager({
     });
     return [...counts.entries()].map(([value, count]) => ({
       value: String(value),
-      label: displayValue(value, filterKey),
+      label: displayValue(value, filterKey, undefined, statusLabels),
       count,
     }));
-  }, [filterKey, records]);
+  }, [filterKey, records, statusLabels]);
 
   const filteredRecords = useMemo(() => {
     const normalizedSearch = search.trim().toLowerCase();
@@ -267,11 +284,11 @@ export default function ContentManager({
       if (filterKey && filter !== "all" && String(record[filterKey]) !== filter) return false;
       if (!normalizedSearch) return true;
       return columns.some((column) => {
-        const raw = column.format ? column.format(record[column.key], record) : displayValue(record[column.key], column.key, column.type);
+        const raw = column.format ? column.format(record[column.key], record) : displayValue(record[column.key], column.key, column.type, statusLabels);
         return String(raw).toLowerCase().includes(normalizedSearch);
       });
     });
-  }, [columns, filter, filterKey, records, search]);
+  }, [columns, filter, filterKey, records, search, statusLabels]);
 
   /* ---------- actions ---------- */
 
@@ -464,9 +481,9 @@ export default function ContentManager({
                     } else if (column.format) {
                       content = <span className={isPrimary ? "content-primary-value" : ""}>{column.format(value, record)}</span>;
                     } else if (STATUS_KEYS.includes(column.key)) {
-                      content = <span className={`content-status ${statusClass(value)}`}>{displayValue(value, column.key)}</span>;
+                      content = <span className={`content-status ${statusClass(value)}`}>{displayValue(value, column.key, undefined, statusLabels)}</span>;
                     } else {
-                      content = <span className={isPrimary ? "content-primary-value" : ""}>{displayValue(value, column.key, column.type)}</span>;
+                      content = <span className={isPrimary ? "content-primary-value" : ""}>{displayValue(value, column.key, column.type, statusLabels)}</span>;
                     }
 
                     return <td key={column.key} data-label={column.label}>{content}</td>;
@@ -522,7 +539,7 @@ export default function ContentManager({
                 <p className="content-eyebrow">{singular.toUpperCase()} DETAILS</p>
                 <h2 id="content-drawer-title">{String(viewing[primaryKey] ?? "Untitled")}</h2>
                 {statusItem !== undefined && (
-                  <span className={`content-status ${statusClass(statusItem)}`}>{displayValue(statusItem, filterKey)}</span>
+                  <span className={`content-status ${statusClass(statusItem)}`}>{displayValue(statusItem, filterKey, undefined, statusLabels)}</span>
                 )}
               </div>
               <button type="button" className="content-icon-button" onClick={closeDrawer} aria-label="Close details"><X size={19} /></button>
@@ -536,7 +553,7 @@ export default function ContentManager({
                 {detailList.filter((item) => item.key !== filterKey && item.key !== "coverImage").map((item) => (
                   <div className={`detail-row ${item.type === "long" ? "wide" : ""}`} key={item.key}>
                     <dt>{item.label}</dt>
-                    <dd><DetailValue item={item} record={viewing} /></dd>
+                    <dd><DetailValue item={item} record={viewing} statusLabels={statusLabels} /></dd>
                   </div>
                 ))}
               </dl>
@@ -608,8 +625,8 @@ export default function ContentManager({
                     </div>
                   );
                 }
-                const control = field.type === "textarea" ? (
-                  <textarea id={id} rows={4} required={field.required} value={draft[field.name]} onChange={(event) => setValue(event.target.value)} />
+                const control = field.type === "textarea" || field.type === "lines" ? (
+                  <textarea id={id} rows={field.type === "lines" ? 5 : 4} required={field.required} value={draft[field.name]} onChange={(event) => setValue(event.target.value)} />
                 ) : field.type === "select" ? (
                   <select id={id} required={field.required} value={draft[field.name]} onChange={(event) => setValue(event.target.value)}>
                     <option value="">Select {field.label.toLowerCase()}</option>
@@ -645,15 +662,36 @@ export default function ContentManager({
                     <div key={field.name} className="content-field">
                       <span>{field.label}{field.required && <b> *</b>}</span>
                       {control}
+                      {field.hint && <small>{field.hint}</small>}
                     </div>
                   );
                 }
 
                 return (
-                  <label key={field.name} htmlFor={id} className={`content-field ${field.type === "textarea" ? "wide" : ""}`}>
+                  <label key={field.name} htmlFor={id} className={`content-field ${field.type === "textarea" || field.type === "lines" ? "wide" : ""}`}>
                     <span>{field.label}{field.required && <b> *</b>}</span>
                     {control}
+                    {field.suggestions && (
+                      <span className="content-filters" role="group" aria-label={`${field.label} choices`}>
+                        {field.suggestions.map((choice) => {
+                          const selected = tagList(draft[field.name]).some((item) => item.toLowerCase() === choice.toLowerCase());
+                          return (
+                            <button
+                              type="button"
+                              key={choice}
+                              className={selected ? "active" : ""}
+                              aria-pressed={selected}
+                              disabled={saving}
+                              onClick={() => setValue(toggleTag(draft[field.name], choice))}
+                            >
+                              {choice}
+                            </button>
+                          );
+                        })}
+                      </span>
+                    )}
                     {field.type === "url" && <small id={`${id}-hint`}>Enter an HTTP(S) URL or a path beginning with /.</small>}
+                    {field.hint && <small>{field.hint}</small>}
                   </label>
                 );
               })}

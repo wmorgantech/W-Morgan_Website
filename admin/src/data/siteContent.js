@@ -3,6 +3,7 @@ export const siteContentResources = {
   services: "/services/manage",
   portfolio: "/portfolio/manage",
   testimonials: "/testimonials/manage",
+  team: "/team/manage",
   careers: "/careers/manage",
   applications: "/careers/applications",
   inquiries: "/contact/manage",

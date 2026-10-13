@@ -2,6 +2,17 @@ import ContentManager from "../components/ContentManager";
 import AdminLayout from "../components/AdminLayout";
 import { siteContentResources } from "../data/siteContent";
 
+// Saved in the project's tags. Keep in step with PORTFOLIO_FILTERS in frontend/src/lib/portfolioApi.js.
+const categoryChoices = [
+  "Web Development",
+  "E-Commerce",
+  "CRM",
+  "Mobile Apps",
+  "UI/UX Design",
+  "Custom Software",
+  "Cloud Solutions",
+];
+
 const fields = [
   {
     name: "title",
@@ -20,6 +31,12 @@ const fields = [
     type: "image",
   },
   {
+    name: "clientLogo",
+    label: "Client logo",
+    type: "image",
+    hint: "Shown beside the project name and in the Trusted Clients strip. Separate from the project image above.",
+  },
+  {
     name: "clientName",
     label: "Client",
   },
@@ -30,14 +47,17 @@ const fields = [
   },
   {
     name: "tags",
-    label: "Technologies / Tags",
+    label: "Category and technologies",
     type: "tags",
+    suggestions: categoryChoices,
+    hint: "Select the category (or categories) above; the first one selected is shown on the project card and used by the website's filters. Add technologies such as React or Node.js as plain text, separated by commas.",
   },
   {
     name: "featured",
-    label: "Visibility",
+    label: "Publishing",
     type: "checkbox",
-    checkboxLabel: "Show on public website",
+    checkboxLabel: "Publish on the public website",
+    hint: "Unpublished projects stay in Admin and never appear on the website.",
   },
 ];
 
@@ -68,6 +88,8 @@ const detailFields = [
   },
 ];
 
+const statusLabels = { featured: ["Published", "Unpublished"] };
+
 export default function Portfolio() {
   return (
     <AdminLayout>
@@ -86,6 +108,7 @@ export default function Portfolio() {
           { key: "featured", label: "Status" },
         ]}
         detailFields={detailFields}
+        statusLabels={statusLabels}
         emptyMessage="No portfolio projects added yet. Add your first project to get started."
       />
     </AdminLayout>

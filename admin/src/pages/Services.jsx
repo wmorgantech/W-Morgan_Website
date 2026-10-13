@@ -15,11 +15,6 @@ const fields = [
     required: true,
   },
   {
-    name: "imageUrl",
-    label: "Service image",
-    type: "url",
-  },
-  {
     name: "icon",
     label: "Icon name",
     placeholder: "e.g. Code2, Cloud, Database",
@@ -31,11 +26,13 @@ const fields = [
   },
   {
     name: "isActive",
-    label: "Visibility",
+    label: "Publishing",
     type: "checkbox",
-    checkboxLabel: "Show on public website",
+    checkboxLabel: "Publish on the public website",
   },
 ];
+
+const statusLabels = { isActive: ["Published", "Unpublished"] };
 
 export default function Services() {
   return (
@@ -48,10 +45,10 @@ export default function Services() {
         columns={[
           { key: "name", label: "Service" },
           { key: "summary", label: "Description" },
-          { key: "imageUrl", label: "Image" },
           { key: "features", label: "Technologies" },
           { key: "isActive", label: "Status" },
         ]}
+        statusLabels={statusLabels}
         emptyMessage="No services added yet. Add your first service to get started."
       />
     </AdminLayout>

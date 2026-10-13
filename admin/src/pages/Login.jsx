@@ -49,7 +49,7 @@ export default function Login() {
     <div className="login-page">
       <div className="login-card">
         <div className="login-header">
-          <img src={logo} alt="WMorgan Technologies" className="login-logo" />
+          <img src={logo} alt="W Morgan Technologies" className="login-logo" />
           <h1>{setupRequired ? "Create admin account" : "Admin Login"}</h1>
           <p>W Morgan Technologies</p>
         </div>
@@ -100,7 +100,7 @@ export default function Login() {
           </button>
         </form>
 
-        <div className="login-footer"><p>© {new Date().getFullYear()} WMorgan Technologies</p></div>
+        <div className="login-footer"><p>© {new Date().getFullYear()} W Morgan Technologies</p></div>
       </div>
     </div>
   );
