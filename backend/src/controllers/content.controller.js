@@ -4,6 +4,10 @@ function createContentController(prisma, config) {
   return {
     listPublic: async (_req, res) =>
       res.json(await contentService.listPublic(prisma, config)),
+    getPublic: async (req, res) =>
+      res.json(
+        await contentService.getPublic(prisma, config, Number(req.params.id)),
+      ),
     listAll: async (_req, res) =>
       res.json(await contentService.listAll(prisma, config)),
     create: async (req, res) =>

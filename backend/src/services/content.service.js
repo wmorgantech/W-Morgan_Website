@@ -1,10 +1,21 @@
 const { slugify } = require('../utils/slugify');
+const { ApiError } = require('../utils/apiError');
 
 async function listPublic(prisma, config) {
   return prisma[config.model].findMany({
     ...(config.publicWhere ? { where: config.publicWhere } : {}),
     orderBy: config.orderBy || { sortOrder: 'asc' },
   });
+}
+
+async function getPublic(prisma, config, id) {
+  const record = await prisma[config.model].findFirst({
+    where: { id, ...(config.publicWhere || {}) },
+  });
+  if (!record) {
+    throw new ApiError(404, 'Requested record was not found.', 'Not Found');
+  }
+  return record;
 }
 
 async function listAll(prisma, config) {
@@ -33,4 +44,4 @@ async function remove(prisma, config, id) {
   return prisma[config.model].delete({ where: { id } });
 }
 
-module.exports = { listPublic, listAll, create, update, remove };
+module.exports = { listPublic, getPublic, listAll, create, update, remove };
