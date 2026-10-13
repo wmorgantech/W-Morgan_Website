@@ -3,10 +3,8 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ArrowUpRight } from "lucide-react";
 import { paths } from "../../routes/paths";
-import {
-  fetchFeaturedPortfolio,
-  normalizeProject,
-} from "../../lib/portfolioApi";
+import { fetchPublicPortfolio } from "../../lib/api";
+import { normalizeProject } from "../../lib/portfolioApi";
 import { projectCover } from "../../lib/projectImages";
 import { EmptyState, ErrorState, LoadingState } from "../common/DataState";
 
@@ -95,7 +93,7 @@ function PortfolioSection() {
   useEffect(() => {
     let active = true;
 
-    fetchFeaturedPortfolio()
+    fetchPublicPortfolio()
       .then((items) => {
         if (!Array.isArray(items)) {
           throw new Error("The portfolio response was not a list.");

@@ -1,6 +1,13 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
 
-async function fetchJson(endpoint, options = {}) {
+// GET responses are shared for a few seconds so that components which mount
+// together (for example the footer and the Contact page, or the home page
+// sections) trigger ONE request instead of repeating it. The window is short,
+// so changes saved in Admin still appear on the next visit or refresh.
+const GET_SHARE_WINDOW_MS = 5000;
+const sharedGets = new Map();
+
+async function request(endpoint, options = {}) {
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
     ...options,
     headers: {
@@ -22,12 +29,31 @@ async function fetchJson(endpoint, options = {}) {
       ? data.message.join(" ")
       : data?.message;
 
-    throw new Error(
+    const error = new Error(
       message || `HTTP ${response.status}: ${response.statusText}`,
     );
+    error.status = response.status;
+    throw error;
   }
 
   return data;
+}
+
+function getJson(endpoint) {
+  const shared = sharedGets.get(endpoint);
+  if (shared && Date.now() - shared.startedAt < GET_SHARE_WINDOW_MS) {
+    return shared.promise;
+  }
+
+  const promise = request(endpoint, { cache: "no-store" });
+  sharedGets.set(endpoint, { promise, startedAt: Date.now() });
+  // A failed request must never be reused.
+  promise.catch(() => {
+    if (sharedGets.get(endpoint)?.promise === promise) {
+      sharedGets.delete(endpoint);
+    }
+  });
+  return promise;
 }
 
 // ========================================
@@ -35,23 +61,31 @@ async function fetchJson(endpoint, options = {}) {
 // ========================================
 
 export async function fetchPublicServices() {
-  return fetchJson("/services");
+  return getJson("/services");
 }
 
 export async function fetchPublicProducts() {
-  return fetchJson("/products");
+  return getJson("/products");
 }
 
 export async function fetchPublicPortfolio() {
-  return fetchJson("/portfolio");
+  return getJson("/portfolio");
 }
 
 export async function fetchPublicTestimonials() {
-  return fetchJson("/testimonials");
+  return getJson("/testimonials");
+}
+
+export async function fetchPublicTeam() {
+  return getJson("/team");
+}
+
+export async function fetchPublicTeamMember(id) {
+  return getJson(`/team/${encodeURIComponent(id)}`);
 }
 
 export async function fetchPublicSiteSettings() {
-  return fetchJson("/settings/public");
+  return getJson("/settings/public");
 }
 
 // ========================================
@@ -59,11 +93,11 @@ export async function fetchPublicSiteSettings() {
 // ========================================
 
 export async function fetchPublicCareerOpenings() {
-  return fetchJson("/careers/openings");
+  return getJson("/careers/openings");
 }
 
 export async function submitJobApplication(payload) {
-  return fetchJson("/careers/applications", {
+  return request("/careers/applications", {
     method: "POST",
     body: JSON.stringify(payload),
   });
@@ -74,7 +108,7 @@ export async function submitJobApplication(payload) {
 // ========================================
 
 export async function submitContactInquiry(payload) {
-  return fetchJson("/contact", {
+  return request("/contact", {
     method: "POST",
     body: JSON.stringify(payload),
   });

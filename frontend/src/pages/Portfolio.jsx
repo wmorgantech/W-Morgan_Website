@@ -2,58 +2,15 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowUpRight, Search, X } from "lucide-react";
 import { fetchPublicPortfolio } from "../lib/api";
+import { PORTFOLIO_FILTERS, normalizeProject } from "../lib/portfolioApi";
+import { usePageMeta } from "../hooks/usePageMeta";
 import { projectCover } from "../lib/projectImages";
 import FinalCTASection from "../components/sections/FinalCTASection";
 import { EmptyState, ErrorState, LoadingState } from "../components/common/DataState";
 
 const ease = [0.22, 1, 0.36, 1];
 
-const FILTERS = [
-  "All",
-  "Web Development",
-  "Mobile Apps",
-  "UI/UX",
-  "E-Commerce",
-  "Software",
-];
-
 const PAGE_SIZE = 8;
-
-function getProjectUrl(project) {
-  return project.projectUrl || project.url || project.liveUrl || project.websiteUrl || null;
-}
-
-function getProjectLogo(project) {
-  return project.clientLogo || project.logo || project.logoUrl || null;
-}
-
-function getProjectImage(project) {
-  return project.coverImage || project.image || project.imageUrl || project.thumbnail || null;
-}
-
-function getProjectCategory(project) {
-  return project.category || project.service || project.type || "Software";
-}
-
-function getTechStack(project) {
-  if (Array.isArray(project.technologies)) return project.technologies;
-  if (Array.isArray(project.techStack)) return project.techStack;
-  if (Array.isArray(project.tags)) return project.tags;
-  return [];
-}
-
-function normalizeProject(project, index) {
-  return {
-    ...project,
-    number: String(index + 1).padStart(2, "0"),
-    name: project.name || project.title || project.projectName || "Untitled Project",
-    category: getProjectCategory(project),
-    logo: getProjectLogo(project),
-    image: getProjectImage(project),
-    technologies: getTechStack(project),
-    url: getProjectUrl(project),
-  };
-}
 
 /* =========================
    PROJECT LOGO
@@ -61,11 +18,18 @@ function normalizeProject(project, index) {
 
 function ProjectLogo({ project, className = "h-9 w-9" }) {
   if (project.logo) {
+    // Keep the height of the badge but let wide logos use more width, so they stay
+    // readable. object-contain keeps the artwork undistorted and centred.
+    const height = className.match(/\bh-\d+\b/)?.[0] || "h-9";
     return (
       <div
-        className={`flex shrink-0 items-center justify-center overflow-hidden rounded-lg border border-[#0e1411]/10 bg-white p-1.5 ${className}`}
+        className={`flex min-w-9 max-w-[6rem] shrink-0 items-center justify-center overflow-hidden rounded-lg border border-[#0e1411]/10 bg-white p-1.5 ${height}`}
       >
-        <img src={project.logo} alt="" className="h-full w-full object-contain" />
+        <img
+          src={project.logo}
+          alt={project.clientName ? `${project.clientName} logo` : ""}
+          className="h-full w-auto max-w-full object-contain"
+        />
       </div>
     );
   }
@@ -110,9 +74,13 @@ function ProjectCard({ project, index, featured, onOpen }) {
         />
 
         <div className="absolute inset-x-4 top-4 flex items-start justify-between">
-          <span className="rounded-full border border-white/20 bg-[#0d1b14]/60 px-3 py-1 font-mono text-[10px] font-medium uppercase tracking-[0.14em] text-white/85 backdrop-blur-md">
-            {project.category}
-          </span>
+          {project.category ? (
+            <span className="rounded-full border border-white/20 bg-[#0d1b14]/60 px-3 py-1 font-mono text-[10px] font-medium uppercase tracking-[0.14em] text-white/85 backdrop-blur-md">
+              {project.category}
+            </span>
+          ) : (
+            <span />
+          )}
           <span className="flex h-9 w-9 translate-y-1 items-center justify-center rounded-full bg-white text-[#0d1b14] opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100 group-hover:rotate-45">
             <ArrowUpRight size={16} />
           </span>
@@ -207,9 +175,11 @@ function ProjectDialog({ entry, onClose }) {
             aria-hidden="true"
             className="absolute inset-0 bg-gradient-to-t from-[#08120d]/60 via-transparent to-transparent"
           />
-          <span className="absolute bottom-4 left-4 rounded-full border border-white/20 bg-[#0d1b14]/60 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-white/85 backdrop-blur-md">
-            {project.category}
-          </span>
+          {project.category && (
+            <span className="absolute bottom-4 left-4 rounded-full border border-white/20 bg-[#0d1b14]/60 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-white/85 backdrop-blur-md">
+              {project.category}
+            </span>
+          )}
         </div>
 
         <div className="flex flex-col p-6 sm:p-8 md:overflow-y-auto">
@@ -266,6 +236,12 @@ function ProjectDialog({ entry, onClose }) {
 ========================= */
 
 export default function Portfolio() {
+  usePageMeta({
+    title: "Portfolio",
+    description:
+      "Selected digital products and technology solutions built by W Morgan Technologies.",
+  });
+
   const [projects, setProjects] = useState([]);
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState("All");
@@ -305,18 +281,29 @@ export default function Portfolio() {
   }, []);
 
   /* FILTER + SEARCH */
+  // Only offer filters that at least one project actually belongs to.
+  const availableFilters = useMemo(
+    () => [
+      "All",
+      ...PORTFOLIO_FILTERS.map((filter) => filter.label).filter((label) =>
+        projects.some((project) => project.categories.includes(label)),
+      ),
+    ],
+    [projects],
+  );
+
   const filteredProjects = useMemo(() => {
     const query = search.trim().toLowerCase();
 
     return projects.filter((project) => {
       const categoryMatch =
-        activeFilter === "All" ||
-        project.category?.toLowerCase() === activeFilter.toLowerCase();
+        activeFilter === "All" || project.categories.includes(activeFilter);
 
       const searchMatch =
         !query ||
         project.name?.toLowerCase().includes(query) ||
-        project.category?.toLowerCase().includes(query) ||
+        project.categories.some((category) => category.toLowerCase().includes(query)) ||
+        project.clientName?.toLowerCase().includes(query) ||
         project.technologies?.some((tech) => String(tech).toLowerCase().includes(query));
 
       return categoryMatch && searchMatch;
@@ -389,9 +376,10 @@ export default function Portfolio() {
       </section>
 
       {/* ================= FILTERS (sticky) ================= */}
+      {availableFilters.length > 1 && (
       <section className="sticky top-[72px] z-30 border-b border-[#0e1411]/10 bg-[#f6f6f1]/90 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center gap-2 overflow-x-auto px-5 py-3 sm:px-8 lg:px-12">
-          {FILTERS.map((filter) => {
+          {availableFilters.map((filter) => {
             const active = activeFilter === filter;
 
             return (
@@ -412,6 +400,7 @@ export default function Portfolio() {
           })}
         </div>
       </section>
+      )}
 
       {/* ================= PROJECT GRID ================= */}
       <section className="mx-auto max-w-7xl px-5 py-12 sm:px-8 md:py-16 lg:px-12">

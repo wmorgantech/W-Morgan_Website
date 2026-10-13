@@ -14,6 +14,8 @@ import { Link } from "react-router-dom";
 import { fetchPublicServices } from "../lib/api";
 import { EmptyState, ErrorState, LoadingState } from "../components/common/DataState";
 import FinalCTASection from "../components/sections/FinalCTASection";
+import ProcessSection from "../components/sections/ProcessSection";
+import { usePageMeta } from "../hooks/usePageMeta";
 import { paths } from "../routes/paths";
 
 const ease = [0.22, 1, 0.36, 1];
@@ -27,15 +29,13 @@ const iconMap = {
   RefreshCw,
 };
 
-const processSteps = [
-  { number: "01", title: "Discover", text: "Understand the business, users and problem before code." },
-  { number: "02", title: "Design", text: "Create a clear product direction and user experience." },
-  { number: "03", title: "Build", text: "Engineer the product using modern and reliable technology." },
-  { number: "04", title: "Launch", text: "Deploy, test and make the product ready for real users." },
-  { number: "05", title: "Grow", text: "Improve, scale and evolve the system as business grows." },
-];
-
 export default function Services() {
+  usePageMeta({
+    title: "Services",
+    description:
+      "From product ideas to scalable platforms, W Morgan Technologies combines design, engineering and modern technology to build digital systems that create value.",
+  });
+
   const [serviceList, setServiceList] = useState([]);
   const [status, setStatus] = useState("loading");
   const [errorMessage, setErrorMessage] = useState("");
@@ -189,40 +189,8 @@ export default function Services() {
         </div>
       </section>
 
-      {/* PROCESS: one connected strip */}
-      <section className="py-14 md:py-20">
-        <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-12">
-          <div className="mb-10 max-w-xl">
-            <p className="eyebrow">How We Work</p>
-            <h2 className="display mt-5 text-[clamp(1.9rem,3.6vw,2.9rem)]">
-              Our Development <span className="text-[#ff3b30]">Process</span>
-            </h2>
-          </div>
-
-          <ol className="grid overflow-hidden rounded-2xl border border-[#0e1411]/10 bg-white sm:grid-cols-3 lg:grid-cols-5">
-            {processSteps.map((step, index) => (
-              <motion.li
-                key={step.number}
-                initial={{ opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.45, delay: index * 0.06, ease }}
-                className="group relative -mb-px -mr-px border-b border-r border-[#0e1411]/10 p-6 transition-colors duration-300 hover:bg-[#0d1b14]"
-              >
-                <span className="font-mono text-[11px] text-[#176b4d] transition-colors group-hover:text-[#7be0b4]">
-                  {step.number}
-                </span>
-                <h3 className="mt-6 text-base font-semibold tracking-tight transition-colors group-hover:text-white">
-                  {step.title}
-                </h3>
-                <p className="mt-1.5 text-[13px] leading-6 text-[#5c655f] transition-colors group-hover:text-white/65">
-                  {step.text}
-                </p>
-              </motion.li>
-            ))}
-          </ol>
-        </div>
-      </section>
+      {/* HOW WE WORK: single shared section */}
+      <ProcessSection />
 
       <FinalCTASection />
     </div>

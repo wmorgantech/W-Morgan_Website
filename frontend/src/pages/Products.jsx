@@ -11,10 +11,10 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { fetchPublicProducts } from "../lib/api";
-import { projectFallbackImages } from "../lib/projectImages";
+import { validImageUrl } from "../lib/portfolioApi";
+import { usePageMeta } from "../hooks/usePageMeta";
 import { EmptyState, ErrorState, LoadingState } from "../components/common/DataState";
 import FinalCTASection from "../components/sections/FinalCTASection";
-import heroImg from "../assets/img9.jpeg";
 
 const ease = [0.22, 1, 0.36, 1];
 
@@ -28,7 +28,10 @@ const iconMap = {
 
 function ProductCard({ product, index, featured }) {
   const Icon = product.icon || Layers;
-  const image = projectFallbackImages[(index + 2) % projectFallbackImages.length];
+  // The image uploaded in Admin (a logo or a screenshot). Anything that is not a real web
+  // path, such as a file path on someone's computer, is ignored. There are no stock photos:
+  // a product without an image shows its initial instead.
+  const image = validImageUrl(product.imageUrl);
 
   return (
     <motion.article
@@ -36,10 +39,10 @@ function ProductCard({ product, index, featured }) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-40px" }}
       transition={{ delay: (index % 2) * 0.06, duration: 0.5, ease }}
-      className={`spot group flex overflow-hidden rounded-2xl border bg-white transition-all duration-500 hover:-translate-y-0.5 hover:border-[#176b4d]/40 hover:shadow-[0_28px_60px_-32px_rgba(8,18,13,0.5)] ${
+      className={`spot group flex overflow-hidden rounded-2xl border transition-all duration-500 hover:-translate-y-0.5 hover:border-[#176b4d]/40 hover:shadow-[0_28px_60px_-32px_rgba(8,18,13,0.5)] ${
         featured
           ? "flex-col border-[#0d1b14] bg-[#0d1b14] text-white sm:col-span-2 md:flex-row"
-          : "flex-col border-[#0e1411]/10"
+          : "flex-col border-[#0e1411]/10 bg-white"
       }`}
     >
       {/* visual band */}
@@ -48,18 +51,27 @@ function ProductCard({ product, index, featured }) {
           featured ? "h-48 md:h-auto md:w-[44%]" : "h-40"
         }`}
       >
-        <img src={image} alt="" loading="lazy" />
-        <div
-          aria-hidden="true"
-          className={`absolute inset-0 bg-gradient-to-t ${
-            featured ? "from-[#0d1b14]/70 md:bg-gradient-to-r md:from-transparent md:to-[#0d1b14]" : "from-[#08120d]/60"
-          } via-transparent to-transparent`}
-        />
-        <span className="absolute left-4 top-4 inline-flex items-center gap-2 rounded-full border border-white/20 bg-[#0d1b14]/60 px-3 py-1 font-mono text-[10px] font-medium uppercase tracking-[0.14em] text-white/85 backdrop-blur-md">
+        <div aria-hidden="true" className="absolute inset-0 bg-[#e8f1ec]" />
+        {image ? (
+          <img
+            src={image}
+            alt={`${product.name} logo`}
+            loading="lazy"
+            className="relative !object-contain p-6"
+          />
+        ) : (
+          <span
+            aria-hidden="true"
+            className="absolute inset-0 flex items-center justify-center font-serif text-6xl italic text-[#176b4d]/70"
+          >
+            {String(product.name || "").trim().charAt(0).toUpperCase()}
+          </span>
+        )}
+        <span className="absolute left-4 top-4 inline-flex items-center gap-2 rounded-full border border-white/20 bg-[#0d1b14] px-3 py-1 font-mono text-[10px] font-medium uppercase tracking-[0.14em] text-white">
           <Icon size={12} strokeWidth={1.8} className="text-[#7be0b4]" />
           {product.category}
         </span>
-        <span className="absolute bottom-3 right-4 font-mono text-xs text-white/70">
+        <span className="absolute bottom-3 right-4 font-mono text-xs text-[#0e1411]/55">
           {product.number}
         </span>
       </div>
@@ -135,6 +147,11 @@ function ProductCard({ product, index, featured }) {
 }
 
 export default function Products() {
+  usePageMeta({
+    title: "Products",
+    description: "Software products built by W Morgan Technologies.",
+  });
+
   const [productList, setProductList] = useState([]);
   const [status, setStatus] = useState("loading");
   const [errorMessage, setErrorMessage] = useState("");
@@ -184,8 +201,7 @@ export default function Products() {
       {/* HERO */}
       <section className="surface-dark on-dark">
         <div className="mx-auto max-w-7xl px-5 py-14 sm:px-8 md:py-20 lg:px-12">
-          <div className="grid items-center gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:gap-14">
-            <div>
+          <div>
               <motion.p
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -215,26 +231,6 @@ export default function Products() {
                 Modular, high-performance software platforms built to solve everyday business
                 operations, customer management, analytics, and automation.
               </motion.p>
-            </div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.65, delay: 0.1, ease }}
-              className="relative"
-            >
-              <div
-                aria-hidden="true"
-                className="absolute -inset-6 -z-10 rounded-[2rem] bg-[radial-gradient(closest-side,rgba(47,170,125,0.25),transparent)] blur-2xl"
-              />
-              <div className="frame frame-ring aspect-[16/10] rounded-2xl shadow-[0_40px_80px_-30px_rgba(0,0,0,0.7)]">
-                <img src={heroImg} alt="" />
-                <div
-                  aria-hidden="true"
-                  className="absolute inset-0 bg-gradient-to-t from-[#08120d]/50 via-transparent to-transparent"
-                />
-              </div>
-            </motion.div>
           </div>
         </div>
       </section>
