@@ -2,19 +2,11 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowUpRight, Camera, Mail, MapPin, Phone, PlayCircle } from "lucide-react";
 
-import { paths } from "../../routes/paths";
+import { primaryNav, legalNav } from "../../routes/navigation";
 import logoMark from "../../assets/logo (2).png";
 import { usePublicSiteSettings } from "../../hooks/usePublicSiteSettings";
 
-const links = [
-  { label: "Home", path: paths.home },
-  { label: "About Us", path: paths.about },
-  { label: "Services", path: paths.services },
-  { label: "Products", path: paths.products },
-  { label: "Portfolio", path: paths.portfolio },
-  { label: "Career", path: paths.career },
-  { label: "Contact Us", path: paths.contact },
-];
+const links = primaryNav;
 
 const socials = [
   {
@@ -157,8 +149,15 @@ function Footer() {
           <p>© {year} W Morgan Technologies. All rights reserved.</p>
 
           <div className="flex gap-5">
-            <span>Privacy Policy</span>
-            <span>Terms & Conditions</span>
+            {legalNav.map((item) => (
+              <Link
+                key={item.path}
+                to={item.path}
+                className="transition-colors duration-200 hover:text-white"
+              >
+                {item.label}
+              </Link>
+            ))}
           </div>
         </div>
 

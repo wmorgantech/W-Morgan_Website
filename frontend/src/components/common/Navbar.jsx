@@ -4,19 +4,12 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
 
 import { paths } from "../../routes/paths";
+import { primaryNav } from "../../routes/navigation";
 import logoMark from "../../assets/logo (2).png";
 import { usePublicSiteSettings } from "../../hooks/usePublicSiteSettings";
 import Button from "./Button";
 
-const navItems = [
-  { label: "Home", path: paths.home },
-  { label: "About", path: paths.about },
-  { label: "Services", path: paths.services },
-  { label: "Products", path: paths.products },
-  { label: "Portfolio", path: paths.portfolio },
-  { label: "Careers", path: paths.career },
-  { label: "Contact", path: paths.contact },
-];
+const navItems = primaryNav;
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);

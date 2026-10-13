@@ -88,7 +88,7 @@ function HeroSection() {
             <div className="frame frame-ring aspect-[5/4] rounded-[1.4rem] shadow-[0_40px_80px_-30px_rgba(0,0,0,0.7)]">
               <img
                 src={heroVisual}
-                alt="WMorgan Technologies digital solutions"
+                alt="W Morgan Technologies digital solutions"
                 className="h-full w-full object-cover object-center"
               />
               <div
@@ -107,7 +107,7 @@ function HeroSection() {
             <div className="absolute bottom-4 left-4 inline-flex items-center gap-2 rounded-full border border-white/15 bg-[#0d1b14]/70 px-3.5 py-2 backdrop-blur-md">
               <span className="h-1.5 w-1.5 rounded-full bg-[#7be0b4]" />
               <span className="font-mono text-[10px] font-medium uppercase tracking-[0.18em] text-white/80">
-                WMorgan Technologies
+                W Morgan Technologies
               </span>
             </div>
           </motion.div>

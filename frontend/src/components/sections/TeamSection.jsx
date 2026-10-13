@@ -34,7 +34,7 @@ function TeamSection() {
 
           <div className="mt-7">
             <Button href={paths.career} arrow>
-              Meet the team
+              Join our team
             </Button>
           </div>
         </div>
