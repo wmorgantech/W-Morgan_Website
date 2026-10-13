@@ -1,0 +1,7 @@
+# W Morgan Technologies
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+
+Sitemap: https://wmorgantech.com/sitemap.xml
