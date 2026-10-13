@@ -24,7 +24,9 @@ function createModel(rows = []) {
         Object.entries(where || {}).every(([key, value]) => row[key] === value),
       );
       if (orderBy) {
-        const [field, direction] = Object.entries(orderBy)[0];
+        const [field, direction] = Object.entries(
+          Array.isArray(orderBy) ? orderBy[0] : orderBy,
+        )[0];
         result = [...result].sort((left, right) =>
           left[field] < right[field]
             ? direction === 'desc'
@@ -45,6 +47,10 @@ function createModel(rows = []) {
       }
       return result;
     },
+    findFirst: async ({ where } = {}) =>
+      rows.find((row) =>
+        Object.entries(where || {}).every(([key, value]) => row[key] === value),
+      ) || null,
     findUnique: async ({ where }) =>
       rows.find((row) =>
         Object.entries(where).every(([key, value]) => row[key] === value),
@@ -113,11 +119,15 @@ function createFixture({ uploadsDirectory } = {}) {
     { id: 1, quote: 'Featured', featured: true, sortOrder: 1 },
     { id: 2, quote: 'Unfeatured', featured: false, sortOrder: 2 },
   ]);
+  const teamMembers = createModel();
   const contactInquiries = createModel();
   const jobOpenings = createModel([
     { id: 1, jobTitle: 'Engineer', slug: 'engineer', status: 'OPEN' },
     { id: 2, jobTitle: 'Closed role', slug: 'closed-role', status: 'CLOSED' },
   ]);
+  const createJobOpening = jobOpenings.create;
+  jobOpenings.create = ({ data }) =>
+    createJobOpening({ data: { status: 'OPEN', ...data } });
   const jobApplications = createModel();
 
   const prisma = {
@@ -126,6 +136,7 @@ function createFixture({ uploadsDirectory } = {}) {
     product: products,
     project: projects,
     testimonial: testimonials,
+    teamMember: teamMembers,
     contactInquiry: contactInquiries,
     jobOpening: jobOpenings,
     jobApplication: jobApplications,
@@ -356,7 +367,7 @@ describe('Express API', () => {
     assert.deepEqual(dashboard.body, {
       products: 1,
       activeServices: 1,
-      projects: 1,
+      projects: 2,
       testimonials: 2,
       newInquiries: 0,
       openJobs: 1,
@@ -467,11 +478,11 @@ describe('Express API', () => {
       .expect(404);
 
     await request(app).get('/api/settings/public').expect(200, {
-      contactEmail: 'info@wmorgantechnologies.com',
-      contactPhone: '+91 98765 43210',
+      contactEmail: 'info@wmorgantech.com',
+      contactPhone: '+91 88707 05554',
       contactLocation:
-        'Dno - 333-F2, Geetha Building,\nNehru St, Peranaidu Layout,\nRam Nagar, Coimbatore,\nTamil Nadu 641009',
-      workingHours: 'Mon – Sat · 9:00 AM – 6:00 PM',
+        'Dno - 333- F2, Geetha Building,\nNehru St, Peranaidu Layout,\nRam Nagar, Coimbatore,\nTamil Nadu 641009',
+      workingHours: '',
       logoUrl: '',
     });
 
@@ -485,9 +496,9 @@ describe('Express API', () => {
       })
       .expect(200, {
         contactEmail: 'hello@example.com',
-        contactPhone: '+91 98765 43210',
+        contactPhone: '+91 88707 05554',
         contactLocation:
-          'Dno - 333-F2, Geetha Building,\nNehru St, Peranaidu Layout,\nRam Nagar, Coimbatore,\nTamil Nadu 641009',
+          'Dno - 333- F2, Geetha Building,\nNehru St, Peranaidu Layout,\nRam Nagar, Coimbatore,\nTamil Nadu 641009',
         workingHours: 'Weekdays',
         logoUrl: '/api/uploads/site-logo.svg',
       });
@@ -496,24 +507,222 @@ describe('Express API', () => {
       .set(authorization)
       .expect(200, {
         contactEmail: 'hello@example.com',
-        contactPhone: '+91 98765 43210',
+        contactPhone: '+91 88707 05554',
         contactLocation:
-          'Dno - 333-F2, Geetha Building,\nNehru St, Peranaidu Layout,\nRam Nagar, Coimbatore,\nTamil Nadu 641009',
+          'Dno - 333- F2, Geetha Building,\nNehru St, Peranaidu Layout,\nRam Nagar, Coimbatore,\nTamil Nadu 641009',
         workingHours: 'Weekdays',
         logoUrl: '/api/uploads/site-logo.svg',
       });
     await request(app).get('/api/settings/public').expect(200, {
       contactEmail: 'hello@example.com',
-      contactPhone: '+91 98765 43210',
+      contactPhone: '+91 88707 05554',
       contactLocation:
-        'Dno - 333-F2, Geetha Building,\nNehru St, Peranaidu Layout,\nRam Nagar, Coimbatore,\nTamil Nadu 641009',
+        'Dno - 333- F2, Geetha Building,\nNehru St, Peranaidu Layout,\nRam Nagar, Coimbatore,\nTamil Nadu 641009',
       workingHours: 'Weekdays',
       logoUrl: '/api/uploads/site-logo.svg',
     });
   });
 
-  it('supports protected product, project, testimonial, and opening CRUD', async () => {
+  it('manages testimonials: optional quote, location, publish and unpublish', async () => {
     const { app } = createFixture();
+    const token = await registerAdmin(app);
+    const authorization = { Authorization: `Bearer ${token}` };
+
+    // A client can be recorded without a quote; it starts unpublished.
+    const noQuote = await request(app)
+      .post('/api/testimonials')
+      .set(authorization)
+      .send({ authorName: 'Mr. Example', location: 'Coimbatore' })
+      .expect(201);
+    assert.equal(noQuote.body.location, 'Coimbatore');
+    assert.equal(noQuote.body.featured, undefined);
+
+    // authorName stays mandatory, and unknown fields are still rejected.
+    await request(app)
+      .post('/api/testimonials')
+      .set(authorization)
+      .send({ location: 'Coimbatore' })
+      .expect(400);
+    await request(app)
+      .post('/api/testimonials')
+      .set(authorization)
+      .send({ authorName: 'Someone', rating: 5 })
+      .expect(400);
+    await request(app)
+      .post('/api/testimonials')
+      .set(authorization)
+      .send({ authorName: 'x'.repeat(161) })
+      .expect(400);
+
+    const idsPublic = async () =>
+      (await request(app).get('/api/testimonials').expect(200)).body.map(
+        (row) => row.id,
+      );
+
+    // Unpublished records never reach the public API.
+    assert.ok(!(await idsPublic()).includes(noQuote.body.id));
+
+    // Publishing makes the latest saved values public immediately.
+    await request(app)
+      .patch(`/api/testimonials/${noQuote.body.id}`)
+      .set(authorization)
+      .send({ featured: true, quote: 'Added later', location: 'Salem' })
+      .expect(200);
+    const published = (await request(app).get('/api/testimonials').expect(200))
+      .body;
+    const row = published.find((item) => item.id === noQuote.body.id);
+    assert.equal(row.quote, 'Added later');
+    assert.equal(row.location, 'Salem');
+
+    // Unpublishing hides it again; the record is kept for Admin.
+    await request(app)
+      .patch(`/api/testimonials/${noQuote.body.id}`)
+      .set(authorization)
+      .send({ featured: false })
+      .expect(200);
+    assert.ok(!(await idsPublic()).includes(noQuote.body.id));
+    const managed = await request(app)
+      .get('/api/testimonials/manage')
+      .set(authorization)
+      .expect(200);
+    assert.ok(managed.body.some((item) => item.id === noQuote.body.id));
+
+    // Deleting removes it everywhere.
+    await request(app)
+      .patch(`/api/testimonials/${noQuote.body.id}`)
+      .set(authorization)
+      .send({ featured: true })
+      .expect(200);
+    await request(app)
+      .delete(`/api/testimonials/${noQuote.body.id}`)
+      .set(authorization)
+      .expect(200);
+    assert.ok(!(await idsPublic()).includes(noQuote.body.id));
+  });
+
+  it('manages team members: protected CRUD, validation and publishing', async () => {
+    const { app } = createFixture();
+    const token = await registerAdmin(app);
+    const authorization = { Authorization: `Bearer ${token}` };
+    const profile = {
+      name: 'Test Member',
+      designation: 'Engineer',
+      memberType: 'INTERN',
+      skills: ['Frontend: React, CSS'],
+      published: false,
+    };
+
+    // Every write endpoint and the management list need an admin token.
+    await request(app).post('/api/team').send(profile).expect(401);
+    await request(app).get('/api/team/manage').expect(401);
+    await request(app).patch('/api/team/1').send({ name: 'x' }).expect(401);
+    await request(app).delete('/api/team/1').expect(401);
+
+    // Validation: required fields, allowed group, unknown fields.
+    await request(app)
+      .post('/api/team')
+      .set(authorization)
+      .send({ name: 'No designation' })
+      .expect(400);
+    await request(app)
+      .post('/api/team')
+      .set(authorization)
+      .send({ ...profile, memberType: 'BOSS' })
+      .expect(400);
+    await request(app)
+      .post('/api/team')
+      .set(authorization)
+      .send({ ...profile, salary: 1 })
+      .expect(400);
+
+    const created = await request(app)
+      .post('/api/team')
+      .set(authorization)
+      .send(profile)
+      .expect(201);
+    const id = created.body.id;
+
+    // Unpublished profiles are hidden from the list and from /api/team/:id.
+    const publicIds = async () =>
+      (await request(app).get('/api/team').expect(200)).body.map((r) => r.id);
+    assert.ok(!(await publicIds()).includes(id));
+    await request(app).get(`/api/team/${id}`).expect(404);
+    await request(app).get('/api/team/abc').expect(400);
+
+    await request(app)
+      .patch(`/api/team/${id}`)
+      .set(authorization)
+      .send({ published: true, experience: 'Verified text' })
+      .expect(200);
+    assert.ok((await publicIds()).includes(id));
+    const detail = await request(app).get(`/api/team/${id}`).expect(200);
+    assert.equal(detail.body.experience, 'Verified text');
+
+    await request(app)
+      .patch(`/api/team/${id}`)
+      .set(authorization)
+      .send({ published: false })
+      .expect(200);
+    await request(app).get(`/api/team/${id}`).expect(404);
+    const managed = await request(app)
+      .get('/api/team/manage')
+      .set(authorization)
+      .expect(200);
+    assert.ok(managed.body.some((row) => row.id === id));
+
+    await request(app).delete(`/api/team/${id}`).set(authorization).expect(200);
+    await request(app).get(`/api/team/${id}`).expect(404);
+  });
+
+  it('saves a project client logo separately from its cover image', async () => {
+    const { app } = createFixture();
+    const token = await registerAdmin(app);
+    const authorization = { Authorization: `Bearer ${token}` };
+
+    const project = await request(app)
+      .post('/api/portfolio')
+      .set(authorization)
+      .send({
+        title: 'Logo Project',
+        coverImage: '/api/uploads/cover.png',
+        clientLogo: '/api/uploads/logo.png',
+        featured: true,
+      })
+      .expect(201);
+    assert.equal(project.body.coverImage, '/api/uploads/cover.png');
+    assert.equal(project.body.clientLogo, '/api/uploads/logo.png');
+
+    // Changing the logo leaves the cover image alone, and the public API returns both.
+    await request(app)
+      .patch(`/api/portfolio/${project.body.id}`)
+      .set(authorization)
+      .send({ clientLogo: '/api/uploads/logo-2.png' })
+      .expect(200);
+    const published = (await request(app).get('/api/portfolio').expect(200))
+      .body;
+    const row = published.find((item) => item.id === project.body.id);
+    assert.equal(row.coverImage, '/api/uploads/cover.png');
+    assert.equal(row.clientLogo, '/api/uploads/logo-2.png');
+
+    // Still protected, still length-limited, and optional.
+    await request(app)
+      .post('/api/portfolio')
+      .send({ title: 'x', clientLogo: '/a.png' })
+      .expect(401);
+    await request(app)
+      .post('/api/portfolio')
+      .set(authorization)
+      .send({ title: 'Too long', clientLogo: 'x'.repeat(2049) })
+      .expect(400);
+    await request(app)
+      .post('/api/portfolio')
+      .set(authorization)
+      .send({ title: 'No logo' })
+      .expect(201);
+  });
+
+  it('supports protected product, project, testimonial, and opening CRUD', async () => {
+    const { app, prisma } = createFixture();
     const token = await registerAdmin(app);
     const authorization = { Authorization: `Bearer ${token}` };
 
