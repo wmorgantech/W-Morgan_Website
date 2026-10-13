@@ -1,15 +1,19 @@
 import { motion } from "framer-motion";
-import AboutSection from "../components/sections/AboutSection";
 import WhyMorganSection from "../components/sections/WhyMorganSection";
 import TeamSection from "../components/sections/TeamSection";
-import DigitalDNASection from "../components/sections/DigitalDNASection";
-import ProcessSection from "../components/sections/ProcessSection";
 import FinalCTASection from "../components/sections/FinalCTASection";
+import { usePageMeta } from "../hooks/usePageMeta";
 import heroImg from "../assets/img5.jpeg";
 
 const ease = [0.22, 1, 0.36, 1];
 
 export default function About() {
+  usePageMeta({
+    title: "About",
+    description:
+      "W Morgan Technologies is a software engineering and product team building scalable systems and modern code bases for ambitious businesses.",
+  });
+
   return (
     <div className="overflow-hidden bg-[#f6f6f1] text-[#0e1411]">
       {/* HERO: light, typographic, with a wide cinematic visual */}
@@ -57,11 +61,8 @@ export default function About() {
         </div>
       </section>
 
-      <AboutSection />
       <WhyMorganSection />
       <TeamSection />
-      <DigitalDNASection />
-      <ProcessSection />
       <FinalCTASection />
     </div>
   );

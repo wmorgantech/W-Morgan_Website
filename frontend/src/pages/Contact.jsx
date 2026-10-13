@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
   Mail,
@@ -11,29 +11,11 @@ import {
   ExternalLink,
   ArrowUpRight,
 } from "lucide-react";
-import { submitContactInquiry } from "../lib/api";
+import { fetchPublicServices, submitContactInquiry } from "../lib/api";
+import { usePageMeta } from "../hooks/usePageMeta";
 import { usePublicSiteSettings } from "../hooks/usePublicSiteSettings";
 
 const ease = [0.22, 1, 0.36, 1];
-
-const serviceOptions = [
-  "Software Development",
-  "Mobile Development",
-  "AI & Automation",
-  "Cloud & DevOps",
-  "UI/UX & Product Design",
-  "Digital Transformation",
-  "Other",
-];
-
-const OFFICE_ADDRESS =
-  "Dno - 333-F2, Geetha Building,\nNehru St, Peranaidu Layout,\nRam Nagar, Coimbatore,\nTamil Nadu 641009";
-
-const MAP_URL =
-  "https://www.google.com/maps/search/?api=1&query=Dno%20333-F2%2C%20Geetha%20Building%2C%20Nehru%20St%2C%20Peranaidu%20Layout%2C%20Ram%20Nagar%2C%20Coimbatore%2C%20Tamil%20Nadu%20641009";
-
-const MAP_EMBED_URL =
-  "https://www.google.com/maps?q=Dno%20333-F2%2C%20Geetha%20Building%2C%20Nehru%20St%2C%20Peranaidu%20Layout%2C%20Ram%20Nagar%2C%20Coimbatore%2C%20Tamil%20Nadu%20641009&output=embed";
 
 const fieldClass =
   "block w-full rounded-xl border border-[#0e1411]/15 bg-white px-4 py-3 text-sm text-[#0e1411] outline-none transition placeholder:text-[#0e1411]/35 hover:border-[#0e1411]/30 focus:border-[#176b4d] focus:ring-4 focus:ring-[#2faa7d]/15";
@@ -41,10 +23,43 @@ const fieldClass =
 const labelClass = "mb-2 block text-[13px] font-medium text-[#0e1411]";
 
 export default function Contact() {
+  usePageMeta({
+    title: "Contact",
+    description:
+      "Contact W Morgan Technologies to discuss your project, a digital product idea or a business challenge.",
+  });
+
   const {
     settings: publicSettings,
     error: settingsError,
   } = usePublicSiteSettings();
+
+  // The office address (and the map built from it) is managed in Admin → Settings.
+  const officeAddress = (publicSettings.contactLocation || "")
+    .replace(/\s*\n\s*/g, ", ")
+    .trim();
+  const mapQuery = encodeURIComponent(officeAddress);
+  const mapUrl = `https://www.google.com/maps/search/?api=1&query=${mapQuery}`;
+  const mapEmbedUrl = `https://www.google.com/maps?q=${mapQuery}&output=embed`;
+
+  // Services offered come from Admin → Services (single source of truth).
+  const [serviceOptions, setServiceOptions] = useState([]);
+
+  useEffect(() => {
+    let active = true;
+    fetchPublicServices()
+      .then((data) => {
+        if (active && Array.isArray(data)) {
+          setServiceOptions(data.map((item) => item.name).filter(Boolean));
+        }
+      })
+      .catch(() => {
+        // The service field is optional; the form still works without the list.
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const contactDetails = [
     {
@@ -75,7 +90,7 @@ export default function Contact() {
     email: "",
     phone: "",
     company: "",
-    service: "Software Development",
+    service: "",
     message: "",
   });
 
@@ -95,7 +110,7 @@ export default function Contact() {
         email: formData.email.trim(),
         phone: formData.phone.trim() || undefined,
         company: formData.company.trim() || undefined,
-        service: formData.service,
+        service: formData.service || undefined,
         message: formData.message.trim(),
       });
 
@@ -107,7 +122,7 @@ export default function Contact() {
           email: "",
           phone: "",
           company: "",
-          service: "Software Development",
+          service: "",
           message: "",
         });
       } else {
@@ -241,58 +256,46 @@ export default function Contact() {
                   OFFICE LOCATION + MAP
               ================================================== */}
 
-              <div className="mt-8 overflow-hidden rounded-2xl border border-[#0e1411]/10 bg-white shadow-[0_20px_44px_-30px_rgba(8,18,13,0.4)]">
-                <div className="flex items-start gap-3 p-4 sm:p-5">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#0d1b14] text-[#7be0b4]">
-                    <MapPin size={17} strokeWidth={1.7} />
-                  </span>
+              {officeAddress && (
+                <div className="mt-8 overflow-hidden rounded-2xl border border-[#0e1411]/10 bg-white shadow-[0_20px_44px_-30px_rgba(8,18,13,0.4)]">
+                  <div className="flex items-start gap-3 p-4 sm:p-5">
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#0d1b14] text-[#7be0b4]">
+                      <MapPin size={17} strokeWidth={1.7} />
+                    </span>
 
-                  <div className="min-w-0">
-                    <p className="mono-label text-[#0e1411]/45">Office Location</p>
-                    <p className="mt-1 text-[13px] font-medium leading-relaxed text-[#0e1411]">
-                      {OFFICE_ADDRESS}
-                    </p>
-                  </div>
-                </div>
-
-                {/* GOOGLE MAP */}
-
-                <div className="relative border-y border-[#0e1411]/10 bg-[#e8e8e2]">
-                  <iframe
-                    title="W Morgan Technologies Office Location"
-                    src={MAP_EMBED_URL}
-                    className="h-[200px] w-full border-0 grayscale-[20%] transition-all duration-500 hover:grayscale-0"
-                    loading="lazy"
-                    referrerPolicy="no-referrer-when-downgrade"
-                  />
-
-                  <div className="pointer-events-none absolute left-3 top-3">
-                    <div className="flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1.5 shadow-sm backdrop-blur-sm">
-                      <span className="h-1.5 w-1.5 rounded-full bg-[#2faa7d]" />
-                      <p className="font-mono text-[10px] font-medium uppercase tracking-[0.12em] text-[#0e1411]">
-                        Coimbatore Office
+                    <div className="min-w-0">
+                      <p className="mono-label text-[#0e1411]/45">Office Location</p>
+                      <p className="mt-1 text-[13px] font-medium leading-relaxed text-[#0e1411]">
+                        {officeAddress}
                       </p>
                     </div>
                   </div>
-                </div>
 
-                <div className="flex items-center justify-between gap-3 px-4 py-3 sm:px-5">
-                  <div className="flex items-center gap-1.5 text-[11px] font-medium text-[#5c655f]">
-                    <MapPin size={12} />
-                    Coimbatore, Tamil Nadu
+                  {/* GOOGLE MAP */}
+
+                  <div className="relative border-t border-[#0e1411]/10 bg-[#e8e8e2]">
+                    <iframe
+                      title="W Morgan Technologies Office Location"
+                      src={mapEmbedUrl}
+                      className="h-[200px] w-full border-0 grayscale-[20%] transition-all duration-500 hover:grayscale-0"
+                      loading="lazy"
+                      referrerPolicy="no-referrer-when-downgrade"
+                    />
                   </div>
 
-                  <a
-                    href={MAP_URL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="link-arrow !text-xs"
-                  >
-                    View Map
-                    <ExternalLink size={11} />
-                  </a>
+                  <div className="flex items-center justify-end border-t border-[#0e1411]/10 px-4 py-3 sm:px-5">
+                    <a
+                      href={mapUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="link-arrow !text-xs"
+                    >
+                      View Map
+                      <ExternalLink size={11} />
+                    </a>
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* SUPPORT NOTE */}
 
@@ -301,9 +304,6 @@ export default function Contact() {
                 <div>
                   <p className="text-[13px] font-semibold text-[#0e1411]">
                     Direct Technical Support
-                  </p>
-                  <p className="mt-0.5 text-xs leading-relaxed text-[#4b554f]">
-                    Response timeframe within 24 business hours.
                   </p>
                 </div>
               </div>
@@ -427,13 +427,13 @@ export default function Contact() {
                         value={formData.phone}
                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                         className={fieldClass}
-                        placeholder="+91 98765 43210"
+                        placeholder="Phone number"
                       />
                     </div>
 
                     <div>
                       <label htmlFor="contact-company" className={labelClass}>
-                        Company / Organization
+                        Company / Organisation
                       </label>
                       <input
                         id="contact-company"
@@ -460,11 +460,13 @@ export default function Contact() {
                       onChange={(e) => setFormData({ ...formData, service: e.target.value })}
                       className={`${fieldClass} cursor-pointer`}
                     >
+                      <option value="">Select a service (optional)</option>
                       {serviceOptions.map((option) => (
                         <option key={option} value={option}>
                           {option}
                         </option>
                       ))}
+                      <option value="Other">Other</option>
                     </select>
                   </div>
 

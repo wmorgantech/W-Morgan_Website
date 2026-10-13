@@ -15,6 +15,9 @@ import {
 } from "../lib/api";
 import careerVisual from "../assets/img10.jpeg";
 import { LoadingState } from "../components/common/DataState";
+import { usePageMeta } from "../hooks/usePageMeta";
+import { paths } from "../routes/paths";
+import { Link } from "react-router-dom";
 
 const ease = [0.22, 1, 0.36, 1];
 
@@ -31,6 +34,12 @@ function humanize(value) {
 }
 
 export default function Careers() {
+  usePageMeta({
+    title: "Careers",
+    description:
+      "Join W Morgan Technologies: an engineering environment focused on quality code, scalable systems and continuous growth.",
+  });
+
   const [jobList, setJobList] = useState([]);
   const [openingsStatus, setOpeningsStatus] = useState("loading");
   const [openingsError, setOpeningsError] = useState("");
@@ -348,14 +357,20 @@ export default function Careers() {
           {/* EMPTY */}
 
           {openingsStatus === "empty" && (
-            <div className="rounded-2xl border border-dashed border-[#0e1411]/15 bg-white px-5 py-14 text-center">
+            <div className="rounded-2xl border border-dashed border-[#0e1411]/15 bg-white px-6 py-12 text-center sm:py-14">
               <p className="text-base font-semibold text-[#0e1411]">
                 No open positions right now.
               </p>
 
-              <p className="mt-1.5 text-sm text-[#5c655f]">
-                Please check back later for new opportunities.
+              <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-[#5c655f]">
+                New roles are published here as soon as they are available. If you would like
+                to introduce yourself in the meantime, you can send us your details through our
+                contact form.
               </p>
+
+              <Link to={paths.contact} className="btn btn-outline mt-6">
+                Contact us
+              </Link>
             </div>
           )}
 
