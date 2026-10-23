@@ -168,7 +168,7 @@ export default function Navbar() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-x-0 bottom-0 top-[72px] overflow-y-auto bg-[#f6f6f1] lg:hidden"
+            className="absolute inset-x-0 top-full h-[calc(100dvh-72px)] overflow-y-auto bg-[#f6f6f1] lg:hidden"
           >
             <nav
               className="mx-auto flex min-h-full max-w-7xl flex-col px-5 pb-8 pt-3 sm:px-8"
@@ -194,7 +194,7 @@ export default function Navbar() {
                           {String(index + 1).padStart(2, "0")}
                         </span>
                         <span
-                          className={`text-[1.65rem] font-semibold tracking-tight ${
+                          className={`text-[1.25rem] font-semibold tracking-tight ${
                             active
                               ? "font-serif font-normal italic text-[#176b4d]"
                               : "text-[#0e1411]"

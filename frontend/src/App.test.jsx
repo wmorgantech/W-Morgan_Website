@@ -65,12 +65,19 @@ describe('App shell', () => {
     );
 
     fireEvent.click(screen.getByRole("button", { name: "Open menu" }));
+    const mobileNavigation = screen.getByRole("navigation", { name: "Mobile navigation" });
     expect(
-      within(screen.getByRole("navigation", { name: "Mobile navigation" }))
+      within(mobileNavigation)
         .getAllByRole("link")
         .filter((link) => /^\d{2}/.test(link.textContent.trim()))
         .map((link) => link.textContent.replace(/^\d+/, "").trim()),
     ).toEqual(remainingNavLabels);
+    expect(mobileNavigation.querySelector(".text-\\[1\\.25rem\\]")).toBeInTheDocument();
+    expect(mobileNavigation.parentElement).toHaveClass(
+      "h-[calc(100dvh-72px)]",
+      "absolute",
+      "top-full",
+    );
   });
 
   it.each(["/products", "/team", "/team/1"])(

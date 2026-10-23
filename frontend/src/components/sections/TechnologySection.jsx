@@ -2,10 +2,10 @@ import { Brain, Cloud, Database, LayoutTemplate, Server } from "lucide-react";
 import Reveal from "../common/Reveal";
 
 const technologyGroups = [
-  { title: "Frontend", icon: LayoutTemplate, technologies: ["React", "Next.js", "JavaScript"] },
-  { title: "Backend", icon: Server, technologies: ["Node.js", "NestJS", "Express.js", "ASP.NET"] },
-  { title: "Cloud & DevOps", icon: Cloud, technologies: ["AWS", "Azure", "DevOps"] },
-  { title: "Database & Data", icon: Database, technologies: ["PostgreSQL", "MongoDB"] },
+  { title: "Frontend", icon: LayoutTemplate, technologies: ["React", "Next.js", "JavaScript", "TypeScript", "React Native", "Angular"] },
+  { title: "Backend", icon: Server, technologies: ["Node.js", "NestJS", "Express.js", "ASP.NET", "C#", "ASP.NET Core"] },
+  { title: "Cloud & DevOps", icon: Cloud, technologies: ["AWS", "Azure", "DevOps", "CI/CD"] },
+  { title: "Database & Data", icon: Database, technologies: ["PostgreSQL", "MongoDB", "Prisma ORM"] },
   { title: "AI", icon: Brain, technologies: ["Claude", "Generative AI"] },
 ];
 
