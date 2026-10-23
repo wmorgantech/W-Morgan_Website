@@ -5,7 +5,7 @@ import { Menu, X } from "lucide-react";
 
 import { paths } from "../../routes/paths";
 import { primaryNav } from "../../routes/navigation";
-import logoMark from "../../assets/logo (2).png";
+import logoLockup from "../../assets/logo2.png";
 import { usePublicSiteSettings } from "../../hooks/usePublicSiteSettings";
 import Button from "./Button";
 
@@ -16,7 +16,9 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [logoLoadFailed, setLogoLoadFailed] = useState(false);
   const { settings } = usePublicSiteSettings();
-  const logo = settings.logoUrl && !logoLoadFailed ? settings.logoUrl : logoMark;
+  // A logo uploaded in Admin → Settings wins (shown as a mark beside the name); otherwise the
+  // full W Morgan Technologies logo supplied with the project is used.
+  const customLogo = settings.logoUrl && !logoLoadFailed ? settings.logoUrl : null;
 
   const location = useLocation();
 
@@ -76,19 +78,34 @@ export default function Navbar() {
           aria-label="W Morgan Technologies home"
           className="group flex w-fit items-center gap-3 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2faa7d]/50 focus-visible:ring-offset-2"
         >
-          <img
-            src={logo}
-            alt="W Morgan Technologies"
-            onError={() => setLogoLoadFailed(true)}
-            className="h-10 w-10 object-contain transition-transform duration-500 group-hover:rotate-[-6deg] group-hover:scale-105"
-          />
+          {customLogo ? (
+            <>
+              <img
+                src={customLogo}
+                alt="W Morgan Technologies"
+                onError={() => setLogoLoadFailed(true)}
+                className="h-11 w-11 object-contain transition-transform duration-500 group-hover:rotate-[-6deg] group-hover:scale-105"
+              />
 
-          <span className="leading-none">
-            <strong className="block text-[15px] font-bold tracking-tight">W MORGAN</strong>
-            <small className="mt-1 block font-mono text-[9px] font-medium uppercase tracking-[0.24em] text-[#5c655f]">
-              Technologies
-            </small>
-          </span>
+              <span className="leading-none">
+                <strong className="block text-base font-bold tracking-tight">W MORGAN</strong>
+                <small className="mt-1 block font-mono text-[9px] font-medium uppercase tracking-[0.24em] text-[#5c655f]">
+                  Technologies
+                </small>
+              </span>
+            </>
+          ) : (
+            <img
+              src={logoLockup}
+              alt="W Morgan Technologies"
+              width="227"
+              height="68"
+              // The supplied artwork has transparent padding around the logo (about a third of
+              // its height and a sixth of its width), so it is drawn taller than the visible
+              // logo and pulled left to line up with the page edge.
+              className="-ml-8 h-14 w-auto max-w-none object-contain transition-transform duration-500 group-hover:scale-[1.03] sm:-ml-10 sm:h-[68px]"
+            />
+          )}
         </Link>
 
         {/* DESKTOP NAV: floating capsule with a sliding active pill */}
@@ -186,7 +203,7 @@ export default function Navbar() {
                           {item.label}
                         </span>
                       </span>
-                      {active && <span className="h-2 w-2 rounded-full bg-[#ff3b30]" />}
+                      {active && <span className="h-2 w-2 rounded-full bg-[#2faa7d]" />}
                     </Link>
                   </motion.div>
                 );

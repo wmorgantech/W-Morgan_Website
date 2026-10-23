@@ -7,7 +7,7 @@ function ScrollProgressBar() {
 
   return (
     <div className="pointer-events-none fixed inset-x-0 top-0 z-[60] h-[2px]" aria-hidden="true">
-      <motion.div className="h-full origin-left bg-[#ff3b30]" style={{ scaleX }} />
+      <motion.div className="h-full origin-left bg-[#2faa7d]" style={{ scaleX }} />
     </div>
   );
 }

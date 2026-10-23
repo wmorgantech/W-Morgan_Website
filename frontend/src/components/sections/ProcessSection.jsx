@@ -1,122 +1,69 @@
 import { motion } from "framer-motion";
-import SectionTitle from "../common/SectionTitle";
+import Reveal from "../common/Reveal";
 
 const steps = [
-  {
-    number: "01",
-    title: "Discover",
-    description: "Understand the business, users and goals.",
-  },
-  {
-    number: "02",
-    title: "Design",
-    description: "Turn ideas into intuitive experiences.",
-  },
-  {
-    number: "03",
-    title: "Engineer",
-    description: "Build reliable products with modern practices.",
-  },
-  {
-    number: "04",
-    title: "Deploy",
-    description: "Launch securely on scalable infrastructure.",
-  },
-  {
-    number: "05",
-    title: "Grow",
-    description: "Measure, improve and keep evolving.",
-  },
+  { number: "01", title: "Discover", description: "Understand the business, users and goals." },
+  { number: "02", title: "Design", description: "Turn ideas into intuitive experiences." },
+  { number: "03", title: "Engineer", description: "Build reliable products with modern practices." },
+  { number: "04", title: "Deploy", description: "Launch securely on scalable infrastructure." },
+  { number: "05", title: "Grow", description: "Measure, improve and keep evolving." },
 ];
 
 const ease = [0.22, 1, 0.36, 1];
 
+/**
+ * The workflow as a horizontal five-step timeline. The green line draws across and the markers
+ * fill one after another when it scrolls into view. On small screens it becomes a compact
+ * vertical list, so nothing overflows sideways.
+ */
 function ProcessSection() {
   return (
-    <section className="bg-white py-16 md:py-24">
+    <section className="bg-white py-12 md:py-16">
       <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-12">
-        <SectionTitle
-          eyebrow="Our Process"
-          title={
-            <>
-              From idea to{" "}
-              <span className="text-[#176b4d]">real impact.</span>
-            </>
-          }
-          description="A clear, practical workflow designed to move products from idea to launch and beyond."
-        />
-
-        {/* Desktop: one connected line that draws in as the section appears */}
-        <div className="mt-14 hidden lg:block">
-          <div className="relative">
-            <div className="absolute inset-x-0 top-[7px] h-px bg-[#0e1411]/10" />
-            <motion.div
-              initial={{ scaleX: 0 }}
-              whileInView={{ scaleX: 1 }}
-              viewport={{ once: true, margin: "-80px" }}
-              transition={{ duration: 1.1, ease }}
-              className="absolute inset-x-0 top-[7px] h-px origin-left bg-gradient-to-r from-[#2faa7d] via-[#2faa7d] to-[#ff3b30]"
-            />
-
-            <ol className="relative grid grid-cols-5 gap-6">
-              {steps.map((step, index) => (
-                <motion.li
-                  key={step.title}
-                  initial={{ opacity: 0, y: 12 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-60px" }}
-                  transition={{ duration: 0.5, delay: 0.1 + index * 0.1, ease }}
-                  className="group relative"
-                >
-                  <span
-                    className={`relative z-10 block h-[15px] w-[15px] rounded-full border-[3px] border-white shadow-[0_0_0_1px_rgba(14,20,17,0.2)] transition-transform duration-300 group-hover:scale-125 ${
-                      index === steps.length - 1 ? "bg-[#ff3b30]" : "bg-[#176b4d]"
-                    }`}
-                  />
-
-                  <span
-                    aria-hidden="true"
-                    className="mt-5 block select-none text-[4.5rem] font-bold leading-none tracking-tighter text-transparent [-webkit-text-stroke:1px_rgba(14,20,17,0.3)] transition-[-webkit-text-stroke-color] duration-300 group-hover:[-webkit-text-stroke-color:#2faa7d]"
-                  >
-                    {step.number}
-                  </span>
-
-                  <h3 className="mt-4 text-[17px] font-semibold tracking-tight text-[#0e1411]">
-                    {step.title}
-                  </h3>
-                  <p className="mt-2 max-w-[13rem] text-[13px] leading-6 text-[#5c655f]">
-                    {step.description}
-                  </p>
-                </motion.li>
-              ))}
-            </ol>
+        <Reveal className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+          <div>
+            <p className="eyebrow">Our Process</p>
+            <h2 className="display mt-4 text-[clamp(1.6rem,2.8vw,2.3rem)] text-[#0e1411]">
+              From idea to <span className="text-[#176b4d]">real impact.</span>
+            </h2>
           </div>
-        </div>
+          <p className="max-w-sm text-sm leading-6 text-[#5c655f]">
+            A clear, practical workflow from the first idea to launch and beyond.
+          </p>
+        </Reveal>
 
-        {/* Mobile / tablet: vertical rail */}
-        <ol className="mt-10 lg:hidden">
+        <ol className="relative mt-10 grid gap-7 md:grid-cols-5 md:gap-5">
+          {/* connecting line (desktop): grey track with a green fill that draws in */}
+          <span aria-hidden="true" className="absolute left-4 right-4 top-[15px] hidden h-px bg-[#0e1411]/12 md:block" />
+          <motion.span
+            aria-hidden="true"
+            initial={{ scaleX: 0 }}
+            whileInView={{ scaleX: 1 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 1.4, ease }}
+            className="absolute left-4 right-4 top-[15px] hidden h-px origin-left bg-gradient-to-r from-[#176b4d] to-[#2faa7d] md:block"
+          />
+
           {steps.map((step, index) => (
-            <motion.li
-              key={step.title}
-              initial={{ opacity: 0, x: 8 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: index * 0.05, ease }}
-              className="relative border-l border-[#0e1411]/12 pb-8 pl-8 last:border-transparent last:pb-0"
-            >
-              <span
-                className={`absolute -left-[7px] top-1 h-[13px] w-[13px] rounded-full border-2 border-white shadow-[0_0_0_1px_rgba(14,20,17,0.2)] ${
-                  index === steps.length - 1 ? "bg-[#ff3b30]" : "bg-[#176b4d]"
-                }`}
-              />
-              <span className="chip-num">{step.number}</span>
-              <h3 className="mt-1 text-lg font-semibold tracking-tight text-[#0e1411]">
-                {step.title}
-              </h3>
-              <p className="mt-1.5 max-w-sm text-[13px] leading-6 text-[#5c655f]">
-                {step.description}
-              </p>
-            </motion.li>
+            <li key={step.title} className="group relative pl-12 md:pl-0">
+              {/* vertical connector (mobile) */}
+              {index < steps.length - 1 && (
+                <span aria-hidden="true" className="absolute bottom-[-1.75rem] left-[15px] top-8 w-px bg-[#176b4d]/30 md:hidden" />
+              )}
+
+              <motion.span
+                initial={{ backgroundColor: "#ffffff", color: "#176b4d" }}
+                whileInView={{ backgroundColor: "#176b4d", color: "#ffffff" }}
+                viewport={{ once: true, margin: "-80px" }}
+                transition={{ duration: 0.4, delay: 0.25 + index * 0.25 }}
+                className="absolute left-0 top-0 z-10 flex h-[31px] w-[31px] items-center justify-center rounded-full border-2 border-[#176b4d] font-mono text-[10px] font-semibold transition-shadow duration-300 group-hover:shadow-[0_0_0_5px_rgba(47,170,125,0.2)] md:static"
+              >
+                {step.number}
+              </motion.span>
+
+              <h3 className="text-base font-semibold tracking-tight text-[#0e1411] md:mt-4">{step.title}</h3>
+              <p className="mt-1 max-w-[16rem] text-[13px] leading-5 text-[#5c655f]">{step.description}</p>
+            </li>
           ))}
         </ol>
       </div>

@@ -1,87 +1,82 @@
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ArrowUpRight } from "lucide-react";
 import { paths } from "../../routes/paths";
 import { fetchPublicPortfolio } from "../../lib/api";
 import { normalizeProject } from "../../lib/portfolioApi";
-import { projectCover } from "../../lib/projectImages";
 import { EmptyState, ErrorState, LoadingState } from "../common/DataState";
+import Reveal from "../common/Reveal";
 
-const ease = [0.22, 1, 0.36, 1];
-
-function ProjectTile({ project, index, large }) {
-  const image = projectCover(project, index);
-  const tags = project.tags.slice(0, large ? 4 : 3);
+/** One project as a compact poster tile. Without a cover image it shows a branded tile, never stock art. */
+function ProjectTile({ project, index }) {
+  const tags = project.technologies?.slice(0, 2) || [];
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-40px" }}
-      transition={{ duration: 0.55, delay: index * 0.07, ease }}
-      className={large ? "lg:col-span-7 lg:row-span-2" : "lg:col-span-5"}
-    >
+    <Reveal as="li" y={16} delay={index * 0.06}>
       <Link
         to={paths.portfolio}
-        className={`group frame frame-ring relative block h-full rounded-2xl ${
-          large ? "min-h-[360px] lg:min-h-[520px]" : "min-h-[250px]"
-        }`}
+        className="group relative block aspect-[4/4.6] overflow-hidden rounded-2xl border border-white/10 bg-[#12261c]"
       >
-        <img
-          src={image}
-          alt=""
-          loading="lazy"
-          className="absolute inset-0 h-full w-full object-cover"
-        />
+        {project.coverImage ? (
+          <img
+            src={project.coverImage}
+            alt=""
+            loading="lazy"
+            className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-105"
+          />
+        ) : (
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 flex items-center justify-center bg-[radial-gradient(circle_at_30%_20%,#23483a,#0d1b14_70%)]"
+          >
+            <span className="font-serif text-[6rem] italic leading-none text-white/10">
+              {project.title.trim().charAt(0).toUpperCase()}
+            </span>
+          </div>
+        )}
 
-        {/* readability gradient */}
         <div
           aria-hidden="true"
-          className="absolute inset-0 bg-gradient-to-t from-[#08120d] via-[#08120d]/35 to-[#08120d]/5 transition-opacity duration-500 group-hover:from-[#08120d]/95"
+          className="absolute inset-0 bg-gradient-to-t from-[#08120d] via-[#08120d]/35 to-transparent"
         />
 
-        {/* top row */}
-        <div className="absolute inset-x-5 top-5 flex items-start justify-between">
-          <span className="rounded-full border border-white/20 bg-[#0d1b14]/55 px-3 py-1 font-mono text-[10px] font-medium uppercase tracking-[0.16em] text-white/85 backdrop-blur-md">
-            {project.number}
-          </span>
-          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-[#0d1b14] opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:rotate-45">
-            <ArrowUpRight size={16} />
+        <div className="absolute inset-x-3.5 top-3.5 flex items-start justify-between">
+          {project.category ? (
+            <span className="rounded-full bg-[#7be0b4] px-2.5 py-0.5 font-mono text-[9.5px] font-medium uppercase tracking-[0.12em] text-[#0d1b14]">
+              {project.category}
+            </span>
+          ) : (
+            <span />
+          )}
+          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-[#0d1b14] opacity-0 transition-all duration-300 group-hover:rotate-45 group-hover:opacity-100">
+            <ArrowUpRight size={15} />
           </span>
         </div>
 
-        {/* content */}
-        <div className="absolute inset-x-5 bottom-5 text-white">
-          <p className="mono-label text-[#7be0b4]">
-            {project.clientName || project.category || "Case Study"}
-          </p>
-          <h3
-            className={`mt-2 font-semibold tracking-tight ${
-              large ? "text-2xl md:text-[1.9rem]" : "text-lg md:text-xl"
-            }`}
-          >
-            {project.title}
-          </h3>
-
-          <div className="grid grid-rows-[0fr] transition-all duration-500 ease-out group-hover:grid-rows-[1fr]">
-            <div className="overflow-hidden">
-              <p className="mt-2 max-w-md text-[13px] leading-6 text-white/70">
-                {project.description}
-              </p>
-            </div>
+        <div className="absolute inset-x-4 bottom-4 text-white">
+          <div className="flex items-center gap-2">
+            {project.logo && (
+              <span className="flex h-7 min-w-7 max-w-[4.5rem] items-center justify-center rounded-md bg-white p-1">
+                <img src={project.logo} alt="" className="h-full w-auto max-w-full object-contain" />
+              </span>
+            )}
+            {project.clientName && (
+              <p className="mono-label truncate text-[10px] text-[#7be0b4]">{project.clientName}</p>
+            )}
           </div>
-
-          <ul className="mt-3 flex flex-wrap gap-1.5">
-            {tags.map((tag) => (
-              <li key={tag} className="pill pill-dark !py-1 !text-[11px] backdrop-blur-md">
-                {tag}
-              </li>
-            ))}
-          </ul>
+          <h3 className="mt-2 text-base font-semibold leading-snug tracking-tight">{project.title}</h3>
+          {tags.length > 0 && (
+            <ul className="mt-2.5 flex flex-wrap gap-1">
+              {tags.map((tag) => (
+                <li key={tag} className="pill pill-dark !px-2 !py-0.5 !text-[10.5px] backdrop-blur-md">
+                  {tag}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </Link>
-    </motion.div>
+    </Reveal>
   );
 }
 
@@ -117,30 +112,29 @@ function PortfolioSection() {
     };
   }, []);
 
-  const shown = projects.slice(0, 3);
-  const hasLarge = shown.length === 3;
+  // Four projects at most on the Home page; the full set lives on /portfolio
+  const shown = projects.slice(0, 4);
 
   return (
-    <section className="surface-dark on-dark py-16 md:py-24">
+    <section className="surface-dark aurora on-dark relative z-10 -mt-6 rounded-t-[2rem] bg-[#0a1610] py-12 md:py-16">
+      <span aria-hidden="true" className="grain-overlay" />
       <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-12">
-        <div className="mb-10 flex flex-col gap-5 md:mb-12 md:flex-row md:items-end md:justify-between">
+        <Reveal className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
-            <p className="eyebrow eyebrow-light">Selected Work</p>
+            <p className="eyebrow eyebrow-light">Technology in Action</p>
 
-            <h2 className="display mt-5 text-[clamp(2rem,4vw,3.25rem)] text-white">
-              Systems &amp; Platforms{" "}
-              <span className="text-[#176b4d]">We've Built.</span>
+            <h2 className="display mt-4 text-[clamp(1.6rem,2.8vw,2.3rem)] text-white">
+              Systems &amp; Platforms <span className="text-[#ff3b30]">We&apos;ve Built.</span>
             </h2>
           </div>
 
-          <Link
-            to={paths.portfolio}
-            className="link-arrow self-start !border-white/25 text-white hover:!border-[#7be0b4] hover:!text-[#7be0b4] md:self-auto"
-          >
-            View all projects
-            <ArrowUpRight size={14} />
+          <Link to={paths.portfolio} className="btn btn-light !min-h-10 !pl-5 !text-[13px] self-start md:self-auto">
+            View All Projects
+            <span className="btn-arrow !h-7 !w-7" aria-hidden="true">
+              <ArrowUpRight size={14} />
+            </span>
           </Link>
-        </div>
+        </Reveal>
 
         {status === "loading" && (
           <LoadingState label={"Loading selected work..."} variant="cards" dark />
@@ -153,20 +147,11 @@ function PortfolioSection() {
         )}
 
         {status === "ready" && (
-          <div
-            className={`grid gap-4 ${
-              hasLarge ? "lg:grid-cols-12" : shown.length === 2 ? "md:grid-cols-2" : ""
-            }`}
-          >
+          <ul className="grid grid-cols-2 gap-3 lg:grid-cols-4">
             {shown.map((project, index) => (
-              <ProjectTile
-                key={project.id || project.title}
-                project={project}
-                index={index}
-                large={hasLarge && index === 0}
-              />
+              <ProjectTile key={project.id || project.title} project={project} index={index} />
             ))}
-          </div>
+          </ul>
         )}
       </div>
     </section>

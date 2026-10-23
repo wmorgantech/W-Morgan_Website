@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
 import {
   ArrowUpRight,
   Code2,
@@ -8,13 +7,14 @@ import {
   CloudCog,
   PenTool,
   Workflow,
+  ShoppingBag,
+  BriefcaseBusiness,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { paths } from "../../routes/paths";
 import { fetchPublicServices } from "../../lib/api";
-import { EmptyState, ErrorState, LoadingState } from "../common/DataState";
-
-const ease = [0.22, 1, 0.36, 1];
+import { ErrorState, LoadingState } from "../common/DataState";
+import Reveal from "../common/Reveal";
 
 const iconMap = {
   Code2,
@@ -25,106 +25,88 @@ const iconMap = {
   Workflow,
 };
 
-function ServiceCard({ service, index }) {
+// Shown only while no services have been published in Admin yet.
+const coreServices = [
+  {
+    name: "Custom Software Development",
+    summary: "Purpose-built business software, designed around your processes and growth goals.",
+    icon: Code2,
+  },
+  {
+    name: "Web Application Development",
+    summary: "Secure, scalable web applications that make everyday work simpler.",
+    icon: Workflow,
+  },
+  {
+    name: "Mobile App Development",
+    summary: "Useful mobile experiences for customers, teams, and business operations.",
+    icon: Smartphone,
+  },
+  {
+    name: "E-Commerce Development",
+    summary: "Online stores and commerce systems built to support the way you sell.",
+    icon: ShoppingBag,
+  },
+  {
+    name: "Business Applications & ERP",
+    summary: "Connected tools for finance, operations, inventory, and reporting.",
+    icon: BriefcaseBusiness,
+  },
+  {
+    name: "API & System Integration",
+    summary: "Reliable integrations that help your software and services work together.",
+    icon: Workflow,
+  },
+];
+
+/** One service as a wide row: numeral, name, summary, and an arrow that fills on hover. */
+function ServiceRow({ service, index }) {
   const Icon = service.icon || Code2;
-  const isDark = service.theme === "dark";
-  const isLarge = service.size === "large";
   const features = Array.isArray(service.features) ? service.features.slice(0, 4) : [];
   const number = String(index + 1).padStart(2, "0");
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 14 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-40px" }}
-      transition={{ duration: 0.5, delay: (index % 3) * 0.06, ease }}
-      className={isLarge ? "md:col-span-2 md:row-span-2" : ""}
-    >
+    <Reveal delay={Math.min(index, 4) * 0.05} as="li">
       <Link
         to={paths.services}
-        className={`spot ${isDark ? "spot-dark" : ""} group relative flex h-full flex-col justify-between overflow-hidden rounded-2xl border p-6 transition-all duration-500 ${
-          isLarge ? "min-h-[360px] md:p-8" : "min-h-[200px]"
-        } ${
-          isDark
-            ? "border-[#0d1b14] bg-[#0d1b14] text-white hover:border-[#2faa7d]/60"
-            : "border-[#0e1411]/10 bg-white text-[#0e1411] shadow-[0_8px_24px_-16px_rgba(8,18,13,0.25)] hover:-translate-y-0.5 hover:border-[#176b4d]/40 hover:shadow-[0_24px_50px_-28px_rgba(8,18,13,0.4)]"
-        }`}
+        aria-label={`${service.name || service.title}: learn more about our services`}
+        className="group relative grid grid-cols-[auto_1fr_auto] items-center gap-x-5 gap-y-1 border-t border-white/10 py-4 transition-colors duration-500 hover:bg-white/[0.04] sm:gap-x-6 sm:py-5 sm:pr-3"
       >
-        {/* Oversized outlined numeral */}
-        {isLarge && (
-          <span
-            aria-hidden="true"
-            className="pointer-events-none absolute -right-3 -top-2 select-none text-[11rem] font-bold leading-none tracking-tighter text-transparent transition-transform duration-700 [-webkit-text-stroke:1px_rgba(123,224,180,0.16)] group-hover:-translate-x-2"
-          >
-            {number}
-          </span>
-        )}
+        <span
+          aria-hidden="true"
+          className="outline-num font-serif text-4xl italic leading-none [--num:rgba(123,224,180,0.55)] group-hover:[--num:#7be0b4] sm:text-5xl"
+        >
+          {number}
+        </span>
 
-        {/* Top row */}
-        <div className="relative flex items-center justify-between">
-          <span
-            className={`flex h-10 w-10 items-center justify-center rounded-xl border transition-colors duration-300 ${
-              isDark
-                ? "border-white/15 bg-white/[0.07] text-[#7be0b4]"
-                : "border-[#0e1411]/10 bg-[#f6f6f1] text-[#0d1b14] group-hover:border-[#0d1b14] group-hover:bg-[#0d1b14] group-hover:text-[#7be0b4]"
-            }`}
-          >
-            <Icon size={19} strokeWidth={1.6} />
-          </span>
-
-          <div className="flex items-center gap-3">
-            <span
-              className={`font-mono text-[10px] font-medium tracking-[0.2em] ${
-                isDark ? "text-white/40" : "text-[#0e1411]/35"
-              }`}
-            >
-              {number}
+        <span className="min-w-0 transition-transform duration-500 group-hover:translate-x-2">
+          <span className="flex items-center gap-3">
+            <Icon size={18} strokeWidth={1.6} className="shrink-0 text-[#7be0b4]" aria-hidden="true" />
+            <span className="text-lg font-semibold tracking-tight text-white sm:text-xl">
+              {service.name || service.title}
             </span>
-            <span
-              className={`flex h-8 w-8 items-center justify-center rounded-full border transition-all duration-300 ${
-                isDark
-                  ? "border-white/15 text-white group-hover:border-[#7be0b4] group-hover:bg-[#7be0b4] group-hover:text-[#0d1b14]"
-                  : "border-[#0e1411]/15 text-[#0e1411] group-hover:border-[#0d1b14] group-hover:bg-[#0d1b14] group-hover:text-white"
-              }`}
-            >
-              <ArrowUpRight
-                size={15}
-                className="transition-transform duration-300 group-hover:rotate-45"
-              />
+          </span>
+          {service.summary && (
+            <span className="mt-1.5 block max-w-xl text-[13px] leading-5 text-white/55 sm:text-sm">
+              {service.summary}
             </span>
-          </div>
-        </div>
-
-        {/* Text */}
-        <div className="relative mt-10">
-          <h3
-            className={`font-semibold tracking-tight ${
-              isLarge ? "text-3xl md:text-[2.1rem]" : "text-lg"
-            }`}
-          >
-            {service.name || service.title}
-          </h3>
-
-          <p
-            className={`mt-2.5 leading-relaxed ${isLarge ? "max-w-md text-[15px]" : "text-[13px]"} ${
-              isDark ? "text-white/62" : "text-[#5c655f]"
-            }`}
-          >
-            {service.summary || service.description}
-          </p>
-
-          {isLarge && features.length > 0 && (
-            <ul className="mt-6 flex flex-wrap gap-2">
-              {features.map((feature) => (
-                <li key={feature} className="pill pill-dark">
-                  {feature}
-                </li>
-              ))}
-            </ul>
           )}
-        </div>
+          {features.length > 0 && (
+            <span className="mt-3 flex flex-wrap gap-1.5 sm:max-h-0 sm:overflow-hidden sm:opacity-0 sm:transition-all sm:duration-500 sm:group-hover:max-h-16 sm:group-hover:opacity-100">
+              {features.map((feature) => (
+                <span key={feature} className="pill pill-dark !text-[11px]">
+                  {feature}
+                </span>
+              ))}
+            </span>
+          )}
+        </span>
+
+        <span className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 text-white transition-all duration-500 group-hover:rotate-45 group-hover:border-[#7be0b4] group-hover:bg-[#7be0b4] group-hover:text-[#0d1b14] sm:h-10 sm:w-10">
+          <ArrowUpRight size={18} aria-hidden="true" />
+        </span>
       </Link>
-    </motion.div>
+    </Reveal>
   );
 }
 
@@ -141,12 +123,10 @@ function ServicesSection() {
         if (!Array.isArray(data)) {
           throw new Error("The services response was not a list.");
         }
-        const mapped = data.map((item, idx) => ({
+        const mapped = data.map((item) => ({
           ...item,
           title: item.name,
           icon: iconMap[item.icon] || Code2,
-          theme: idx === 0 || idx === 4 ? "dark" : "light",
-          size: idx === 0 && data.length >= 5 ? "large" : "small",
         }));
         if (active) {
           setItems(mapped);
@@ -165,33 +145,46 @@ function ServicesSection() {
     };
   }, []);
 
+  const rows = status === "ready" ? items.slice(0, 6) : status === "empty" ? coreServices : [];
+
   return (
-    <section className="bg-white py-16 md:py-24">
+    <section className="surface-dark on-dark relative z-10 -mt-6 rounded-t-[2rem] bg-[#0a1610] py-12 md:py-16">
+      <span aria-hidden="true" className="grain-overlay" />
       <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-12">
-        <div className="mb-10 flex flex-col gap-5 md:mb-12 md:flex-row md:items-end md:justify-between">
+        <div className="grid gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:gap-14">
+          {/* sticky heading */}
+          <div className="lg:sticky lg:top-28 lg:self-start">
+            <Reveal>
+              <p className="eyebrow eyebrow-light">What We Do</p>
+              <h2 className="display mt-4 text-[clamp(1.6rem,2.8vw,2.3rem)] text-white">
+                We build software that <span className="text-[#ff3b30]">moves business.</span>
+              </h2>
+              <p className="lead mt-4 max-w-md !text-[0.95rem]">
+                From discovery and design to development, deployment, and ongoing support, one
+                accountable team takes your idea all the way to a working product.
+              </p>
+              <Link to={paths.services} className="btn btn-light mt-6 !min-h-10 !pl-5 !text-[13px]">
+                Explore all services
+                <span className="btn-arrow" aria-hidden="true">
+                  <ArrowUpRight size={16} />
+                </span>
+              </Link>
+            </Reveal>
+          </div>
+
+          {/* index list */}
           <div>
-            <p className="eyebrow">Services</p>
-            <h2 className="display mt-5 text-[clamp(2rem,4vw,3.25rem)] text-[#0e1411]">
-              Technology that <span className="text-[#ff3b30]">moves business.</span>
-            </h2>
+            {status === "loading" && <LoadingState dark label="Loading services..." variant="rows" />}
+            {status === "error" && <ErrorState dark message={errorMessage} />}
+            {rows.length > 0 && (
+              <ul className="border-b border-white/10">
+                {rows.map((service, index) => (
+                  <ServiceRow key={service.id || service.name || index} service={service} index={index} />
+                ))}
+              </ul>
+            )}
           </div>
-
-          <Link to={paths.services} className="link-arrow self-start md:self-auto">
-            Explore all services
-            <ArrowUpRight size={14} />
-          </Link>
         </div>
-
-        {status === "loading" && <LoadingState label={"Loading services..."} variant="bento" />}
-        {status === "error" && <ErrorState message={errorMessage} />}
-        {status === "empty" && <EmptyState message={"No services are available right now."} />}
-        {status === "ready" && (
-          <div className="grid auto-rows-[minmax(190px,auto)] gap-4 md:grid-cols-3">
-            {items.slice(0, 6).map((service, index) => (
-              <ServiceCard key={service.id || service.name || index} service={service} index={index} />
-            ))}
-          </div>
-        )}
       </div>
     </section>
   );

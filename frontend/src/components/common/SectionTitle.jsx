@@ -10,6 +10,7 @@ function SectionTitle({
 
   return (
     <div
+      data-aos="fade-up"
       className={`max-w-3xl ${light ? "on-dark" : ""} ${center ? "mx-auto text-center" : ""} ${className}`}
     >
       {eyebrow && (
