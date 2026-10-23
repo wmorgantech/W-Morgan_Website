@@ -19,6 +19,8 @@ const settingsFields = [
   'contactLocation',
   'workingHours',
   'logoUrl',
+  'aboutImageUrl',
+  'aboutVideoUrl',
 ];
 const settingsValidation = validateBody(
   [
@@ -31,6 +33,11 @@ const settingsValidation = validateBody(
     body('contactLocation').optional().isString().isLength({ max: 500 }),
     body('workingHours').optional().isString().isLength({ max: 160 }),
     body('logoUrl').optional().isString().isLength({ max: 2048 }),
+    body('aboutImageUrl').optional().isString().isLength({ max: 2048 }),
+    body('aboutVideoUrl')
+      .optional({ values: 'falsy' })
+      .isURL({ protocols: ['http', 'https'], require_protocol: true })
+      .isLength({ max: 2048 }),
   ],
   settingsFields,
 );

@@ -16,6 +16,10 @@ function createContactController(prisma) {
           req.body.status,
         ),
       ),
+    remove: async (req, res) =>
+      res.json(
+        await contactService.removeInquiry(prisma, Number(req.params.id)),
+      ),
   };
 }
 

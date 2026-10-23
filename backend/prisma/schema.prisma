@@ -84,11 +84,27 @@ model Project {
   projectUrl  String?
   featured    Boolean @default(false)
   sortOrder   Int     @default(0)
+  categories  PortfolioCategory[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([featured])
+  @@index([sortOrder])
+}
+
+model PortfolioCategory {
+  id        Int       @id @default(autoincrement())
+  name      String
+  slug      String    @unique
+  sortOrder Int       @default(0)
+  isActive  Boolean   @default(true)
+  projects  Project[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([isActive])
   @@index([sortOrder])
 }
 
@@ -203,6 +219,7 @@ model JobApplication {
   phone         String?
   coverLetter   String?
   resumeUrl     String?
+  portfolioUrl  String?
   status        JobApplicationStatus @default(RECEIVED)
 
   jobOpening JobOpening @relation(fields: [jobOpeningId], references: [id], onDelete: Restrict)

@@ -44,6 +44,7 @@ function createContactRouter(prisma, jwtSecret) {
     statusValidation,
     controller.updateStatus,
   );
+  router.delete('/:id', authenticate, idValidation, controller.remove);
   return router;
 }
 

@@ -90,9 +90,21 @@ const applicationValidation = validateBody(
     body('coverLetter').optional().isString().isLength({ max: 10000 }),
 
     body('resumeUrl')
-      .optional()
+      .optional({ values: 'falsy' })
       .isString()
+      .trim()
       .isLength({ max: 2048 }),
+    body('resumeUrl')
+      .optional({ values: 'falsy' })
+      .isURL({ protocols: ['http', 'https'], require_protocol: true }),
+    body('portfolioUrl')
+      .optional({ values: 'falsy' })
+      .isString()
+      .trim()
+      .isLength({ max: 2048 }),
+    body('portfolioUrl')
+      .optional({ values: 'falsy' })
+      .isURL({ protocols: ['http', 'https'], require_protocol: true }),
   ],
   [
     'jobOpeningId',
@@ -101,6 +113,7 @@ const applicationValidation = validateBody(
     'phone',
     'coverLetter',
     'resumeUrl',
+    'portfolioUrl',
   ],
 );
 
@@ -160,6 +173,12 @@ function createCareersRouter(prisma, jwtSecret) {
     idValidation,
     applicationStatusValidation,
     controller.updateApplication,
+  );
+  router.delete(
+    '/applications/:id',
+    authenticate,
+    idValidation,
+    controller.removeApplication,
   );
 
   // ========================================

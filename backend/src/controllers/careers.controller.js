@@ -36,6 +36,10 @@ function createCareersController(prisma) {
           req.body.status,
         ),
       ),
+    removeApplication: async (req, res) =>
+      res.json(
+        await careersService.removeApplication(prisma, Number(req.params.id)),
+      ),
   };
 }
 
