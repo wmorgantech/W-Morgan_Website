@@ -2,11 +2,9 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
-import Products from "./pages/Products";
 import Services from "./pages/Services";
 import Portfolio from "./pages/Portfolio";
 import Testimonials from "./pages/Testimonials";
-import Team from "./pages/Team";
 import Careers from "./pages/Careers";
 import Contact from "./pages/Contact";
 import Settings from "./pages/Settings";
@@ -49,15 +47,6 @@ function App() {
         />
 
         <Route
-          path="/products"
-          element={
-            <ProtectedRoute>
-              <Products />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
           path="/services"
           element={
             <ProtectedRoute>
@@ -80,15 +69,6 @@ function App() {
           element={
             <ProtectedRoute>
               <Testimonials />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/team"
-          element={
-            <ProtectedRoute>
-              <Team />
             </ProtectedRoute>
           }
         />

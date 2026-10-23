@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import api from "../lib/api";
+import api, { getApiError } from "../lib/api";
 import ContentManager from "../components/ContentManager";
 import AdminLayout from "../components/AdminLayout";
 import { siteContentResources } from "../data/siteContent";
@@ -114,6 +114,7 @@ const jobDetailFields = [
 
 export default function Careers() {
   const [openings, setOpenings] = useState({});
+  const [openingError, setOpeningError] = useState("");
 
   useEffect(() => {
     let active = true;
@@ -121,7 +122,11 @@ export default function Careers() {
     api
       .get(siteContentResources.careers)
       .then(({ data }) => {
-        if (!active || !Array.isArray(data)) return;
+        if (!active) return;
+        if (!Array.isArray(data)) {
+          setOpeningError("Job openings response was not a list.");
+          return;
+        }
 
         setOpenings(
           Object.fromEntries(
@@ -129,7 +134,9 @@ export default function Careers() {
           )
         );
       })
-      .catch(() => {});
+      .catch((error) => {
+        if (active) setOpeningError(getApiError(error));
+      });
 
     return () => {
       active = false;
@@ -164,6 +171,11 @@ export default function Careers() {
       type: "link",
     },
     {
+      key: "portfolioUrl",
+      label: "Portfolio",
+      type: "link",
+    },
+    {
       key: "createdAt",
       label: "Received",
       type: "date",
@@ -193,6 +205,12 @@ export default function Careers() {
         emptyMessage="No job openings added yet. Add your first opening to get started."
       />
 
+      {openingError && (
+        <p className="content-error" role="alert">
+          Could not load job titles for applications: {openingError}
+        </p>
+      )}
+
       <div className="content-page careers-applications">
         <ContentManager
           title="Applications"
@@ -219,7 +237,6 @@ export default function Careers() {
           emptyMessage="No job applications have been received."
           allowCreate={false}
           allowEdit
-          allowDelete={false}
         />
       </div>
     </AdminLayout>

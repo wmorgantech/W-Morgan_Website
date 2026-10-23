@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Check, ExternalLink, ImageOff, Inbox, Pencil, Plus, Search, SearchX, Trash2, X } from "lucide-react";
+import { Check, Eye, ExternalLink, ImageOff, Inbox, Pencil, Plus, Search, SearchX, Trash2, X } from "lucide-react";
 import api, { getApiError } from "../lib/api";
 import ImageUploadField from "./ImageUploadField";
 
@@ -12,6 +12,9 @@ function makeDraft(fields, record = {}) {
     const value = record[name];
     if (type === "tags") return [name, Array.isArray(value) ? value.join(", ") : ""];
     if (type === "lines") return [name, Array.isArray(value) ? value.join("\n") : ""];
+    if (type === "multiSelect") {
+      return [name, Array.isArray(value) ? value.map(Number) : []];
+    }
     if (type === "checkbox") return [name, Boolean(value)];
     return [name, value ?? ""];
   }));
@@ -34,6 +37,7 @@ function makePayload(fields, draft) {
     const value = draft[name];
     if (type === "tags") return [name, value.split(",").map((tag) => tag.trim()).filter(Boolean)];
     if (type === "lines") return [name, value.split(/\r?\n/).map((line) => line.trim()).filter(Boolean)];
+    if (type === "multiSelect") return [name, value.map(Number)];
     if (type === "number") return [name, value === "" ? 0 : Number(value)];
     return [name, typeof value === "string" ? value.trim() : value];
   }));
@@ -143,9 +147,11 @@ export default function ContentManager({
   detailFields,
   itemName,
   statusLabels,
+  allowView = true,
   allowCreate = true,
   allowEdit = true,
   allowDelete = true,
+  onRecordsChange,
 }) {
   const [records, setRecords] = useState([]);
   const [search, setSearch] = useState("");
@@ -329,6 +335,7 @@ export default function ContentManager({
         ? current.map((record) => record.id === editing.id ? data : record)
         : [data, ...current]
       );
+      onRecordsChange?.();
       setToast(editing ? `${singular} updated.` : `${singular} created.`);
       savingRef.current = false;
       setFormOpen(false);
@@ -355,6 +362,7 @@ export default function ContentManager({
     try {
       await api.delete(`${endpoint}/${confirming.id}`);
       setRecords((current) => current.filter((item) => item.id !== confirming.id));
+      onRecordsChange?.();
       setToast(`${singular} deleted.`);
       setConfirming(null);
       setViewing(null);
@@ -368,7 +376,7 @@ export default function ContentManager({
 
   /* ---------- derived view data ---------- */
 
-  const hasRowActions = allowEdit || allowDelete;
+  const hasRowActions = allowView || allowEdit || allowDelete;
   const colSpan = columns.length + (hasRowActions ? 1 : 0);
 
   const detailList = useMemo(() => {
@@ -490,6 +498,11 @@ export default function ContentManager({
                   })}
                   {hasRowActions && (
                     <td className="content-row-actions" data-label="Actions" onClick={(event) => event.stopPropagation()}>
+                      {allowView && (
+                        <button type="button" className="content-icon-button" onClick={(event) => openDrawer(record, event)} aria-label={`View ${record[primaryKey]}`} title="View">
+                          <Eye size={16} />
+                        </button>
+                      )}
                       {allowEdit && (
                         <button type="button" className="content-icon-button" onClick={(event) => openForm(record, event)} aria-label={`Edit ${record[primaryKey]}`} title="Edit">
                           <Pencil size={16} />
@@ -635,6 +648,38 @@ export default function ContentManager({
                       return <option key={value} value={value}>{label}</option>;
                     })}
                   </select>
+                ) : field.type === "multiSelect" ? (
+                  <span
+                    id={id}
+                    className="content-filters"
+                    role="group"
+                    aria-label={field.label}
+                    aria-describedby={field.hint ? `${id}-field-hint` : undefined}
+                  >
+                    {field.options.length === 0 && <small>No options available yet.</small>}
+                    {field.options.map((option) => {
+                      const { value, label } = humanizeOption(option);
+                      const selected = draft[field.name].includes(Number(value));
+                      return (
+                        <button
+                          type="button"
+                          key={value}
+                          className={selected ? "active" : ""}
+                          aria-pressed={selected}
+                          disabled={saving}
+                          onClick={() =>
+                            setValue(
+                              selected
+                                ? draft[field.name].filter((item) => item !== Number(value))
+                                : [...draft[field.name], Number(value)],
+                            )
+                          }
+                        >
+                          {label}
+                        </button>
+                      );
+                    })}
+                  </span>
                 ) : field.type === "checkbox" ? (
                   <label className="content-checkbox" htmlFor={id}>
                     <input id={id} type="checkbox" checked={draft[field.name]} onChange={(event) => setValue(event.target.checked)} />
@@ -662,13 +707,13 @@ export default function ContentManager({
                     <div key={field.name} className="content-field">
                       <span>{field.label}{field.required && <b> *</b>}</span>
                       {control}
-                      {field.hint && <small>{field.hint}</small>}
+                      {field.hint && <small id={`${id}-field-hint`}>{field.hint}</small>}
                     </div>
                   );
                 }
 
                 return (
-                  <label key={field.name} htmlFor={id} className={`content-field ${field.type === "textarea" || field.type === "lines" ? "wide" : ""}`}>
+                  <label key={field.name} htmlFor={id} className={`content-field ${field.type === "textarea" || field.type === "lines" || field.type === "multiSelect" ? "wide" : ""}`}>
                     <span>{field.label}{field.required && <b> *</b>}</span>
                     {control}
                     {field.suggestions && (

@@ -37,7 +37,6 @@ export default function Contact() {
         emptyMessage="No contact inquiries have been received."
         allowCreate={false}
         allowEdit
-        allowDelete={false}
       />
     </AdminLayout>
   );

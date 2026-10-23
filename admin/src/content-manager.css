@@ -627,6 +627,8 @@ a {
 }
 
 .image-upload-picker {
+  position: relative;
+  overflow: hidden;
   display: inline-flex;
   min-height: 36px;
   align-items: center;
@@ -640,7 +642,7 @@ a {
   font-weight: 600;
 }
 
-.image-upload-picker input {
+.image-upload-field .image-upload-picker input[type="file"] {
   position: absolute;
   width: 1px;
   height: 1px;

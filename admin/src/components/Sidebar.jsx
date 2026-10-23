@@ -3,11 +3,9 @@ import { NavLink, useNavigate } from "react-router-dom";
 import logoMark from "../assets/logo-mark.png";
 import {
   LayoutDashboard,
-  Package,
   BriefcaseBusiness,
   MessageSquareQuote,
   Users,
-  UsersRound,
   Mail,
   Settings,
   LogOut,
@@ -24,11 +22,6 @@ const menuItems = [
     icon: LayoutDashboard,
   },
   {
-    name: "Product Suite",
-    path: "/products",
-    icon: Package,
-  },
-  {
     name: "Services",
     path: "/services",
     icon: BriefcaseBusiness,
@@ -42,11 +35,6 @@ const menuItems = [
     name: "Testimonials",
     path: "/testimonials",
     icon: MessageSquareQuote,
-  },
-  {
-    name: "Team Members",
-    path: "/team",
-    icon: UsersRound,
   },
   {
     name: "Careers",

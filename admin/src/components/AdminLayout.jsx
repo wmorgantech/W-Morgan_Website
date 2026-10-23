@@ -3,11 +3,9 @@ import Sidebar from "./Sidebar";
 
 const pageTitles = {
   "/dashboard": "Dashboard",
-  "/products": "Product Suite",
   "/services": "Services",
   "/portfolio": "Portfolio",
   "/testimonials": "Testimonials",
-  "/team": "Team Members",
   "/careers": "Careers",
   "/contact": "Contact Inquiries",
   "/settings": "Settings",

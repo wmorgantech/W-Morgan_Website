@@ -4,19 +4,12 @@ import {
   BriefcaseBusiness,
   Mail,
   MessageSquareQuote,
-  Package,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import AdminLayout from "../components/AdminLayout";
 import api, { getApiError } from "../lib/api";
 
 const metrics = [
-  {
-    key: "products",
-    title: "Active products",
-    icon: Package,
-    to: "/products",
-  },
   {
     key: "activeServices",
     title: "Active services",
@@ -50,12 +43,6 @@ const metrics = [
 ];
 
 const quickLinks = [
-  {
-    to: "/products",
-    label: "Products",
-    detail: "Manage product listings",
-    icon: Package,
-  },
   {
     to: "/services",
     label: "Services",

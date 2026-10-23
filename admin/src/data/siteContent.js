@@ -1,9 +1,8 @@
 export const siteContentResources = {
-  products: "/products/manage",
   services: "/services/manage",
   portfolio: "/portfolio/manage",
+  portfolioCategories: "/portfolio-categories/manage",
   testimonials: "/testimonials/manage",
-  team: "/team/manage",
   careers: "/careers/manage",
   applications: "/careers/applications",
   inquiries: "/contact/manage",

@@ -968,6 +968,11 @@ body {
 }
 
 @media (max-width: 920px) {
+  /* Brand text sits on the dark mobile header, so it must be light */
+  .mobile-header .brand-lockup-mobile .brand-copy strong {
+    color: #fff;
+  }
+
   .admin-layout {
     display: block;
   }
@@ -984,6 +989,28 @@ body {
 @media (max-width: 680px) {
   .admin-main {
     padding-top: 22px;
+  }
+
+  /* Top bar: let the breadcrumb shrink and keep the profile chip inside the screen */
+  .admin-navbar {
+    gap: 12px;
+    padding: 10px 16px;
+  }
+
+  .admin-navbar > div:first-child {
+    min-width: 0;
+  }
+
+  .admin-navbar-actions {
+    flex: 0 0 auto;
+  }
+
+  .navbar-profile {
+    padding: 4px;
+  }
+
+  .navbar-profile > div:not(.admin-avatar) {
+    display: none;
   }
 
   .content-page-header h1,
@@ -1034,4 +1061,10 @@ body {
 
 .content-status {
   white-space: nowrap;
+}
+
+/* Pages with more than one manager (Portfolio: categories + projects, Careers: openings +
+   applications) keep a clear gap between the sections */
+.content-page + .content-page {
+  margin-top: 44px;
 }
