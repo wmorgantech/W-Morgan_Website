@@ -6,6 +6,7 @@ import PortfolioSection from "../components/sections/PortfolioSection";
 import IndustriesSection from "../components/sections/IndustriesSection";
 import TechnologySection from "../components/sections/TechnologySection";
 import TestimonialsSection from "../components/sections/TestimonialsSection";
+import ImpactMetricsSection from "../components/sections/ImpactMetricsSection";
 import FinalCTASection from "../components/sections/FinalCTASection";
 import { usePageMeta } from "../hooks/usePageMeta";
 
@@ -28,10 +29,11 @@ export default function Home() {
       <TrustedClients />
       <AboutSection />
       <ServicesSection />
+      <ImpactMetricsSection />
+      <TestimonialsSection />
       <PortfolioSection />
       <IndustriesSection />
       <TechnologySection />
-      <TestimonialsSection />
       <FinalCTASection />
     </div>
   );

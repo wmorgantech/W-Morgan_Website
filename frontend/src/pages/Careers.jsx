@@ -17,6 +17,7 @@ import careerVisual from "../assets/img10.jpeg";
 import { LoadingState } from "../components/common/DataState";
 import { usePageMeta } from "../hooks/usePageMeta";
 import { paths } from "../routes/paths";
+import Reveal from "../components/common/Reveal";
 import { Link } from "react-router-dom";
 
 const ease = [0.22, 1, 0.36, 1];
@@ -51,6 +52,7 @@ export default function Careers() {
     phone: "",
     coverLetter: "",
     resumeUrl: "",
+    portfolioUrl: "",
   });
 
   const [submitting, setSubmitting] = useState(false);
@@ -136,6 +138,8 @@ export default function Careers() {
           formData.coverLetter.trim() || undefined,
         resumeUrl:
           formData.resumeUrl.trim() || undefined,
+        portfolioUrl:
+          formData.portfolioUrl.trim() || undefined,
       });
 
       if (response && response.id) {
@@ -170,6 +174,7 @@ export default function Careers() {
       phone: "",
       coverLetter: "",
       resumeUrl: "",
+      portfolioUrl: "",
     });
   };
 
@@ -213,87 +218,77 @@ export default function Careers() {
   };
 
   return (
-    <main className="overflow-hidden bg-[#f6f6f1] text-[#0e1411]">
+    <main className="overflow-x-clip bg-[#f6f6f1] text-[#0e1411]">
       {/* ==================================================
           HERO
       ================================================== */}
 
-      <section className="border-b border-[#0e1411]/10 bg-[#e6f0ea]">
-        <div className="mx-auto max-w-7xl px-5 py-14 sm:px-8 md:py-20 lg:px-12">
+      <section className="surface-dark aurora on-dark relative">
+        <span aria-hidden="true" className="grain-overlay" />
+        <div className="mx-auto max-w-7xl px-5 pb-20 pt-10 sm:px-8 md:pb-24 md:pt-14 lg:px-12">
           <div className="grid gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:gap-14">
             {/* HERO CONTENT */}
 
             <div>
-              <motion.p
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.45, ease }}
-                className="eyebrow"
-              >
+              <Reveal as="p" y={10} className="eyebrow eyebrow-light">
                 Join Our Team
-              </motion.p>
+              </Reveal>
 
-              <motion.h1
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.55, delay: 0.05, ease }}
-                className="display mt-6 max-w-3xl text-[clamp(2.4rem,5vw,4.1rem)] leading-[1] text-[#0e1411]"
+              <Reveal
+                as="h1"
+                delay={0.06}
+                className="display mt-5 max-w-3xl text-[clamp(2rem,4.2vw,3.2rem)] leading-[1.05] tracking-[-0.035em] text-white"
               >
-                Build your career with
-                <br />
+                Build your career with{" "}
                 <span className="text-[#ff3b30]">W Morgan Technologies.</span>
-              </motion.h1>
+              </Reveal>
 
-              <motion.p
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.14, ease }}
-                className="lead mt-6 max-w-lg"
-              >
-                We are building digital products that matter. Join an engineering environment
-                focused on quality code, scalable systems, and continuous growth.
-              </motion.p>
+              <Reveal delay={0.14}>
+                <p className="lead mt-5 max-w-lg !text-[0.95rem]">
+                  We are building digital products that matter. Join an engineering environment
+                  focused on quality code, scalable systems, and continuous growth.
+                </p>
 
-              <ul className="mt-7 flex flex-wrap gap-2">
-                {["Engineering", "Growth", "Innovation"].map((item) => (
-                  <li key={item} className="pill pill-solid !px-4 !py-1.5 !text-xs">
-                    {item}
-                  </li>
-                ))}
-              </ul>
+                <ul className="mt-5 flex flex-wrap gap-2">
+                  {["Engineering", "Growth", "Innovation"].map((item) => (
+                    <li key={item} className="pill pill-dark !px-4 !py-1.5 !text-xs">
+                      {item}
+                    </li>
+                  ))}
+                </ul>
 
-              <a href="#openings" className="btn btn-primary mt-8">
-                View Open Positions
-                <span className="btn-arrow" aria-hidden="true">
-                  <ArrowUpRight size={16} />
-                </span>
-              </a>
+                <a href="#openings" className="btn btn-light mt-6">
+                  View Open Positions
+                  <span className="btn-arrow" aria-hidden="true">
+                    <ArrowUpRight size={16} />
+                  </span>
+                </a>
+              </Reveal>
             </div>
 
             {/* HERO IMAGE */}
 
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.65, delay: 0.1, ease }}
-              className="relative"
-            >
-              <div
+            <Reveal delay={0.1} className="relative mx-auto w-full max-w-md lg:ml-auto">
+              <span
                 aria-hidden="true"
-                className="absolute -bottom-3 -left-3 h-full w-full rounded-[1.5rem] border border-[#176b4d]/30"
+                className="rings absolute -right-16 -top-14 -z-10 h-64 w-64 sm:-right-24"
               />
-              <div className="frame frame-ring relative aspect-[4/3] rounded-[1.5rem] shadow-[0_40px_80px_-40px_rgba(8,18,13,0.6)]">
-                <img src={careerVisual} alt="W Morgan Technologies workspace" />
+              <div className="shape-leaf relative aspect-[4/3.6] overflow-hidden border border-white/15 shadow-[0_50px_90px_-30px_rgba(0,0,0,0.75)]">
+                <img
+                  src={careerVisual}
+                  alt="W Morgan Technologies workspace"
+                  className="h-full w-full object-cover transition-transform duration-[1400ms] ease-out hover:scale-105"
+                />
                 <div
                   aria-hidden="true"
-                  className="absolute inset-0 bg-gradient-to-t from-[#08120d]/75 via-[#08120d]/10 to-transparent"
+                  className="absolute inset-0 bg-gradient-to-t from-[#08120d]/70 via-transparent to-transparent"
                 />
-                <div className="absolute inset-x-4 bottom-4 flex items-center justify-between rounded-xl border border-white/15 bg-[#0d1b14]/65 px-4 py-2.5 backdrop-blur-md">
-                  <span className="mono-label text-white/80">Engineering Culture</span>
-                  <span className="mono-label text-[#7be0b4]">Open Positions</span>
-                </div>
               </div>
-            </motion.div>
+              <div className="absolute -bottom-5 left-4 flex items-center gap-3 rounded-2xl border border-white/15 bg-[#0d1b14]/85 px-4 py-3 shadow-xl backdrop-blur-md sm:-left-6">
+                <span className="h-2 w-2 rounded-full bg-[#7be0b4] shadow-[0_0_0_4px_rgba(123,224,180,0.2)]" />
+                <span className="mono-label text-white/80">Engineering Culture</span>
+              </div>
+            </Reveal>
           </div>
         </div>
       </section>
@@ -302,7 +297,7 @@ export default function Careers() {
           OPEN POSITIONS
       ================================================== */}
 
-      <section id="openings" className="scroll-mt-24 py-14 md:py-20">
+      <section id="openings" className="relative z-10 -mt-8 scroll-mt-24 rounded-t-[2rem] bg-[#f6f6f1] pb-14 pt-10 md:pb-20 md:pt-12">
         <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-12">
           {/* SECTION HEADER */}
 
@@ -643,6 +638,25 @@ export default function Careers() {
                     }
                     className={fieldClass}
                     placeholder="Google Drive / LinkedIn / Portfolio"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="application-portfolio" className={labelClass}>
+                    Portfolio URL
+                  </label>
+                  <input
+                    id="application-portfolio"
+                    type="url"
+                    value={formData.portfolioUrl}
+                    onChange={(event) =>
+                      setFormData({
+                        ...formData,
+                        portfolioUrl: event.target.value,
+                      })
+                    }
+                    className={fieldClass}
+                    placeholder="https://example.com/portfolio"
                   />
                 </div>
 

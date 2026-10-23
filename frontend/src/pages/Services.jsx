@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
 import {
   ArrowUpRight,
   Code2,
@@ -12,13 +11,16 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { fetchPublicServices } from "../lib/api";
-import { EmptyState, ErrorState, LoadingState } from "../components/common/DataState";
+import {
+  EmptyState,
+  ErrorState,
+  LoadingState,
+} from "../components/common/DataState";
+import PageHero from "../components/common/PageHero";
 import FinalCTASection from "../components/sections/FinalCTASection";
 import ProcessSection from "../components/sections/ProcessSection";
 import { usePageMeta } from "../hooks/usePageMeta";
 import { paths } from "../routes/paths";
-
-const ease = [0.22, 1, 0.36, 1];
 
 const iconMap = {
   Code2,
@@ -29,11 +31,90 @@ const iconMap = {
   RefreshCw,
 };
 
+const technologies = [
+  {
+    category: "Frontend",
+    items: ["React", "Next.js", "JavaScript"],
+  },
+  {
+    category: "Backend",
+    items: ["Node.js", "Express.js", "NestJS"],
+  },
+  {
+    category: "Database",
+    items: ["PostgreSQL", "MongoDB"],
+  },
+  {
+    category: "Cloud & DevOps",
+    items: ["AWS", "Azure", "DevOps"],
+  },
+];
+
+function ServiceCard({ service, index }) {
+  const Icon = service.icon || Code2;
+
+  return (
+    <article className="group flex h-full flex-col border-t border-[#0e1411]/15 py-5 sm:py-6">
+      <div className="mb-5 flex items-center justify-between">
+        <span className="text-xs font-semibold tracking-[0.16em] text-[#267447]">
+          {service.number}
+        </span>
+
+        <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#e2eee5] text-[#176b4d] transition-colors duration-300 group-hover:bg-[#176b4d] group-hover:text-white">
+          <Icon size={20} strokeWidth={1.7} />
+        </span>
+      </div>
+
+      <h2 className="text-lg font-semibold leading-snug tracking-tight sm:text-xl">
+        {service.title}
+      </h2>
+
+      <p className="mt-2 text-sm leading-6 text-[#59615b]">
+        {service.description}
+      </p>
+
+      {service.features.length > 0 && (
+        <div className="mt-4">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#267447]">
+            Key capabilities
+          </p>
+
+          <ul className="mt-2 flex flex-wrap gap-2">
+            {service.features.map((feature) => (
+              <li
+                key={feature}
+                className="inline-flex items-center gap-1.5 rounded-full border border-[#176b4d]/15 bg-white px-2.5 py-1 text-xs text-[#33463b]"
+              >
+                <Check size={11} className="shrink-0 text-[#267447]" />
+                {feature}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      <div className="mt-auto pt-5">
+        <Link
+          to={paths.contact}
+          aria-label={`Discuss ${service.title}`}
+          className="group/link inline-flex items-center gap-2 text-sm font-semibold text-[#176b4d] transition-colors hover:text-[#0d1b14]"
+        >
+          Discuss this service
+          <ArrowUpRight
+            size={16}
+            className="transition-transform duration-200 group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5"
+          />
+        </Link>
+      </div>
+    </article>
+  );
+}
+
 export default function Services() {
   usePageMeta({
     title: "Services",
     description:
-      "From product ideas to scalable platforms, W Morgan Technologies combines design, engineering and modern technology to build digital systems that create value.",
+      "Explore W Morgan Technologies services, including web development, custom software, digital product engineering, and business platforms.",
   });
 
   const [serviceList, setServiceList] = useState([]);
@@ -48,18 +129,20 @@ export default function Services() {
         if (!Array.isArray(data)) {
           throw new Error("The services response was not a list.");
         }
+
         const mapped = data.map((item, idx) => ({
           ...item,
           id: item.id,
           number: String(idx + 1).padStart(2, "0"),
           title: item.name,
-          description: item.description || item.summary,
+          description: item.description || item.summary || "",
           icon: iconMap[item.icon] || Code2,
           features: Array.isArray(item.features) ? item.features : [],
         }));
+
         if (active) {
           setServiceList(mapped);
-          setStatus(mapped.length ? "ready" : "empty");
+          setStatus(mapped.length > 0 ? "ready" : "empty");
         }
       })
       .catch((error) => {
@@ -75,124 +158,118 @@ export default function Services() {
   }, []);
 
   return (
-    <div className="overflow-hidden bg-[#f6f6f1] text-[#0e1411]">
-      {/* HERO */}
-      <section className="surface-dark on-dark">
-        <div className="mx-auto max-w-7xl px-5 py-14 sm:px-8 md:py-20 lg:px-12">
-          <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-end lg:gap-16">
-            <div>
-              <motion.p
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.45, ease }}
-                className="eyebrow eyebrow-light"
-              >
-                Services Overview
-              </motion.p>
-              <motion.h1
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.55, delay: 0.05, ease }}
-                className="display mt-6 text-[clamp(2.4rem,5vw,4rem)] leading-[1] text-white"
-              >
-                Technology that
-                <br />
-                <span className="text-[#ff3b30]">moves business.</span>
-              </motion.h1>
+    <main className="overflow-x-clip bg-[#f6f6f1] text-[#0e1411]">
+      {/* Hero */}
+      <PageHero
+        eyebrow="Our Services"
+        title="Technology that"
+        accent="moves business forward."
+        description="We design and build digital solutions that help businesses solve problems, improve workflows, and move confidently toward their goals."
+      />
+
+      {/* Core services */}
+      <section className="relative bg-[#f6f6f1] py-12 sm:py-16 lg:py-20">
+        <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-12">
+          <div className="mb-8 flex flex-col gap-3 sm:mb-10 sm:flex-row sm:items-end sm:justify-between">
+            <div className="max-w-2xl">
+              <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-[#267447]">
+                What We Do
+              </p>
+
+              <h2 className="text-2xl font-semibold leading-tight tracking-[-0.035em] sm:text-3xl lg:text-4xl">
+                Solutions designed around{" "}
+                <span className="font-serif italic text-[#267447]">
+                  your needs.
+                </span>
+              </h2>
             </div>
 
-            <motion.p
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.14, ease }}
-              className="lead max-w-md border-l border-[#7be0b4]/40 pl-5"
-            >
-              From product ideas to scalable platforms, we combine design, engineering and modern
-              tech to build digital systems that create value.
-            </motion.p>
+            <p className="max-w-sm text-sm leading-6 text-[#59615b]">
+              From the first idea to a working digital product, we focus on
+              practical technology and meaningful outcomes.
+            </p>
           </div>
-        </div>
-      </section>
 
-      {/* SERVICES: an editorial index, one service per row */}
-      <section className="bg-white py-14 md:py-20">
-        <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-12">
-          {status === "loading" && <LoadingState label={"Loading services..."} variant="rows" />}
-          {status === "error" && <ErrorState message={errorMessage} />}
-          {status === "empty" && <EmptyState message={"No services are available right now."} />}
+          {status === "loading" && (
+            <LoadingState label="Loading services..." variant="rows" />
+          )}
+
+          {status === "error" && (
+            <ErrorState message={errorMessage} />
+          )}
+
+          {status === "empty" && (
+            <EmptyState message="No services are available right now." />
+          )}
+
           {status === "ready" && (
-            <ul className="border-t border-[#0e1411]/12">
-              {serviceList.map((service, index) => {
-                const Icon = service.icon || Code2;
-                return (
-                  <motion.li
-                    key={service.id || service.number}
-                    initial={{ opacity: 0, y: 12 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-40px" }}
-                    transition={{ delay: (index % 3) * 0.05, duration: 0.45, ease }}
-                    className="spot group relative grid gap-5 border-b border-[#0e1411]/12 px-1 py-7 transition-colors duration-300 hover:bg-[#f6f6f1] md:grid-cols-[5rem_1fr_1fr] md:gap-8 md:px-4 md:py-9 lg:grid-cols-[6rem_1.1fr_1fr_auto]"
-                  >
-                    {/* number + icon */}
-                    <div className="flex items-start gap-4 md:flex-col md:gap-5">
-                      <span className="font-serif text-4xl italic leading-none text-[#176b4d]/70 transition-colors group-hover:text-[#176b4d] md:text-5xl">
-                        {service.number}
-                      </span>
-                      <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#0d1b14] text-[#7be0b4] transition-transform duration-500 group-hover:-rotate-6">
-                        <Icon size={18} strokeWidth={1.6} />
-                      </span>
-                    </div>
-
-                    {/* title + description */}
-                    <div>
-                      <h3 className="text-xl font-semibold tracking-tight md:text-[1.6rem]">
-                        {service.title}
-                      </h3>
-                      <p className="mt-2.5 max-w-md text-[14px] leading-7 text-[#5c655f]">
-                        {service.description}
-                      </p>
-                    </div>
-
-                    {/* capabilities */}
-                    <div>
-                      {service.features.length > 0 && (
-                        <>
-                          <p className="mono-label text-[#0e1411]/40">Key Capabilities</p>
-                          <ul className="mt-3 flex flex-wrap gap-2">
-                            {service.features.map((feat) => (
-                              <li key={feat} className="pill">
-                                <Check size={11} className="text-[#2faa7d]" />
-                                {feat}
-                              </li>
-                            ))}
-                          </ul>
-                        </>
-                      )}
-                    </div>
-
-                    {/* action */}
-                    <Link
-                      to={paths.contact}
-                      aria-label={`Discuss ${service.title}`}
-                      className="hidden h-11 w-11 items-center justify-center self-center rounded-full border border-[#0e1411]/15 text-[#0e1411] transition-all duration-300 group-hover:border-[#0d1b14] group-hover:bg-[#0d1b14] group-hover:text-white lg:flex"
-                    >
-                      <ArrowUpRight
-                        size={18}
-                        className="transition-transform duration-300 group-hover:rotate-45"
-                      />
-                    </Link>
-                  </motion.li>
-                );
-              })}
-            </ul>
+            <div className="grid grid-cols-1 gap-x-8 sm:grid-cols-2 lg:grid-cols-3 lg:gap-x-10">
+              {serviceList.map((service, index) => (
+                <ServiceCard
+                  key={service.id || service.number}
+                  service={service}
+                  index={index}
+                />
+              ))}
+            </div>
           )}
         </div>
       </section>
 
-      {/* HOW WE WORK: single shared section */}
+      {/* Technologies */}
+      <section className="border-y border-white/10 bg-[#0d1b14] py-12 text-white sm:py-16">
+        <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-12">
+          <div className="grid gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-start lg:gap-14">
+            <div>
+              <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-[#7be0b4]">
+                Our Technology Stack
+              </p>
+
+              <h2 className="text-2xl font-semibold leading-tight tracking-[-0.035em] sm:text-3xl">
+                The right tools for{" "}
+                <span className="font-serif italic text-[#7be0b4]">
+                  the right solution.
+                </span>
+              </h2>
+
+              <p className="mt-3 max-w-md text-sm leading-6 text-white/65">
+                We choose technologies according to each project's
+                requirements, performance needs, and long-term goals.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-x-8 sm:gap-y-6">
+              {technologies.map((group) => (
+                <div
+                  key={group.category}
+                  className="border-t border-white/15 pt-3"
+                >
+                  <h3 className="mb-3 text-sm font-semibold text-white">
+                    {group.category}
+                  </h3>
+
+                  <div className="flex flex-wrap gap-2">
+                    {group.items.map((technology) => (
+                      <span
+                        key={technology}
+                        className="rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-xs text-white/75"
+                      >
+                        {technology}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Existing process section */}
       <ProcessSection />
 
+      {/* Existing CTA */}
       <FinalCTASection />
-    </div>
+    </main>
   );
 }

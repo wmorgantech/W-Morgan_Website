@@ -136,13 +136,18 @@ export default function Contact() {
   };
 
   return (
-    <main className="overflow-hidden bg-[#f6f6f1] text-[#0e1411]">
+    <main className="overflow-x-clip bg-[#f6f6f1] text-[#0e1411]">
       {/* ==================================================
           HERO
       ================================================== */}
 
-      <section className="surface-dark on-dark">
-        <div className="mx-auto max-w-7xl px-5 pb-28 pt-14 sm:px-8 md:pb-32 md:pt-20 lg:px-12">
+      <section className="surface-dark aurora on-dark relative">
+        <span aria-hidden="true" className="grain-overlay" />
+        <span
+          aria-hidden="true"
+          className="rings absolute -right-24 top-1/2 hidden h-[26rem] w-[26rem] -translate-y-1/2 lg:block"
+        />
+        <div className="mx-auto max-w-7xl px-5 pb-28 pt-10 sm:px-8 md:pb-36 md:pt-14 lg:px-12 lg:pb-40">
           <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-end lg:gap-16">
             <div>
               <motion.p
@@ -158,7 +163,7 @@ export default function Contact() {
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.55, delay: 0.05, ease }}
-                className="display mt-6 text-[clamp(2.6rem,6vw,4.75rem)] leading-[0.98] text-white"
+                className="display mt-5 text-[clamp(2rem,4.2vw,3.2rem)] leading-[1.04] tracking-[-0.035em] text-white"
               >
                 Let's build
                 <br />
@@ -183,7 +188,7 @@ export default function Contact() {
           CONTACT CONTENT
       ================================================== */}
 
-      <section className="pb-16 md:pb-24">
+      <section className="relative z-10 -mt-8 rounded-t-[2rem] bg-[#f6f6f1] pb-12 md:pb-16">
         <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-12">
           <div className="grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:gap-14">
             {/* ==================================================
@@ -513,8 +518,9 @@ export default function Contact() {
           BOTTOM CTA STRIP
       ================================================== */}
 
-      <section className="surface-dark on-dark">
-        <div className="mx-auto flex max-w-7xl flex-col gap-4 px-5 py-12 sm:px-8 md:flex-row md:items-end md:justify-between lg:px-12">
+      <section className="surface-dark aurora on-dark relative">
+        <span aria-hidden="true" className="grain-overlay" />
+        <div className="mx-auto flex max-w-7xl flex-col gap-4 px-5 py-14 sm:px-8 md:flex-row md:items-end md:justify-between lg:px-12">
           <div>
             <p className="mono-label text-[#7be0b4]">W Morgan Technologies</p>
 

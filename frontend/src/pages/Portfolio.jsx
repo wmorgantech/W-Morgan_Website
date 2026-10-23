@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowUpRight, Search, X } from "lucide-react";
-import { fetchPublicPortfolio } from "../lib/api";
-import { PORTFOLIO_FILTERS, normalizeProject } from "../lib/portfolioApi";
+import { fetchPublicPortfolio, fetchPublicPortfolioCategories } from "../lib/api";
+import { normalizeProject } from "../lib/portfolioApi";
 import { usePageMeta } from "../hooks/usePageMeta";
 import { projectCover } from "../lib/projectImages";
 import FinalCTASection from "../components/sections/FinalCTASection";
@@ -243,6 +243,7 @@ export default function Portfolio() {
   });
 
   const [projects, setProjects] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState("All");
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
@@ -255,16 +256,20 @@ export default function Portfolio() {
   useEffect(() => {
     let active = true;
 
-    fetchPublicPortfolio()
-      .then((data) => {
+    Promise.all([fetchPublicPortfolio(), fetchPublicPortfolioCategories()])
+      .then(([data, categoryData]) => {
         if (!Array.isArray(data)) {
           throw new Error("Portfolio response was not a list.");
+        }
+        if (!Array.isArray(categoryData)) {
+          throw new Error("Portfolio categories response was not a list.");
         }
 
         const mapped = data.map(normalizeProject);
 
         if (active) {
           setProjects(mapped);
+          setCategories(categoryData);
           setStatus(mapped.length ? "ready" : "empty");
         }
       })
@@ -285,11 +290,13 @@ export default function Portfolio() {
   const availableFilters = useMemo(
     () => [
       "All",
-      ...PORTFOLIO_FILTERS.map((filter) => filter.label).filter((label) =>
-        projects.some((project) => project.categories.includes(label)),
+      ...categories
+        .map((category) => category.name)
+        .filter((name) =>
+          projects.some((project) => project.categories.includes(name)),
       ),
     ],
-    [projects],
+    [categories, projects],
   );
 
   const filteredProjects = useMemo(() => {
@@ -340,7 +347,7 @@ export default function Portfolio() {
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.55, delay: 0.05, ease }}
-                className="display mt-6 text-[clamp(2.6rem,6vw,4.75rem)] leading-[0.98] text-white"
+                className="display mt-6 text-[clamp(2.2rem,4.6vw,3.5rem)] leading-[1.04] text-white"
               >
                 Portfolio
               </motion.h1>
