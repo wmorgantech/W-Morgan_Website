@@ -6,13 +6,11 @@ import { paths } from "./paths";
  */
 export const primaryNav = [
   { label: "Home", path: paths.home },
-  { label: "About", path: paths.about },
+  { label: "About Us", path: paths.about },
   { label: "Services", path: paths.services },
-  { label: "Products", path: paths.products },
   { label: "Portfolio", path: paths.portfolio },
-  { label: "Our Team", path: paths.team },
-  { label: "Careers", path: paths.career },
-  { label: "Contact", path: paths.contact },
+  { label: "Career", path: paths.career },
+  { label: "Contact Us", path: paths.contact },
 ];
 
 export const legalNav = [

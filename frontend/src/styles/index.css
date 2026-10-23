@@ -90,6 +90,7 @@
   }
 
   html {
+    scroll-padding-top: 6rem;
     scroll-behavior: smooth;
     -webkit-text-size-adjust: 100%;
   }
@@ -556,5 +557,136 @@
 @media (prefers-reduced-motion: reduce) {
   .marquee-track {
     animation: none;
+  }
+}
+
+/* =========================================================
+   SIGNATURE LAYER
+   Aurora glows, film grain, ring motif (from the logo), outlined numerals and
+   tickers. Used to give the dark sections depth and the page a visual rhythm.
+   ========================================================= */
+
+/* Slowly drifting emerald / ember glows behind dark sections */
+.aurora {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+.aurora::before,
+.aurora::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+}
+.aurora::before {
+  right: -14rem;
+  top: -20rem;
+  width: 48rem;
+  height: 48rem;
+  background: radial-gradient(circle, rgba(47, 170, 125, 0.5), transparent 66%);
+  animation: aurora-drift 24s ease-in-out infinite alternate;
+}
+.aurora::after {
+  left: -12rem;
+  bottom: -20rem;
+  width: 38rem;
+  height: 38rem;
+  background: radial-gradient(circle, rgba(47, 170, 125, 0.2), transparent 66%);
+  animation: aurora-drift 30s ease-in-out infinite alternate-reverse;
+}
+@keyframes aurora-drift {
+  to {
+    transform: translate3d(-4rem, 3rem, 0) scale(1.12);
+  }
+}
+
+/* Fine film grain so large flat greens feel like a material, not a fill */
+.grain-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.09;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .9 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+
+/* Concentric rings echoing the logo's circle */
+.rings {
+  border-radius: 50%;
+  border: 1px solid rgba(123, 224, 180, 0.2);
+  box-shadow:
+    0 0 0 2.5rem rgba(123, 224, 180, 0.035),
+    0 0 0 5rem rgba(123, 224, 180, 0.026),
+    0 0 0 7.5rem rgba(123, 224, 180, 0.018);
+  pointer-events: none;
+}
+.rings-ink {
+  border-color: rgba(14, 20, 17, 0.1);
+  box-shadow:
+    0 0 0 2.5rem rgba(14, 20, 17, 0.025),
+    0 0 0 5rem rgba(14, 20, 17, 0.018);
+}
+
+/* Outlined display numerals */
+.outline-num {
+  color: transparent;
+  -webkit-text-stroke: 1.25px var(--num, rgba(255, 255, 255, 0.5));
+  transition: -webkit-text-stroke-color 0.4s ease, color 0.4s ease;
+}
+
+/* Horizontal tickers (two identical halves, translated by -50%) */
+.ticker {
+  display: flex;
+  width: max-content;
+  animation: ticker-slide 42s linear infinite;
+}
+.ticker-reverse {
+  animation-direction: reverse;
+}
+.ticker:hover,
+.ticker:focus-within {
+  animation-play-state: paused;
+}
+@keyframes ticker-slide {
+  to {
+    transform: translateX(-50%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ticker {
+    animation: none;
+  }
+  .aurora::before,
+  .aurora::after {
+    animation: none;
+  }
+}
+
+/* Image shapes: an arch and an asymmetric card, instead of plain rounded boxes */
+.shape-arch {
+  border-radius: 999px 999px 1.5rem 1.5rem;
+}
+.shape-leaf {
+  border-radius: 3.5rem 0.75rem 3.5rem 0.75rem;
+}
+
+/* Hairline that draws itself in on reveal */
+.rule-grow {
+  height: 1px;
+  background: linear-gradient(90deg, var(--emerald), transparent);
+  transform-origin: left;
+}
+
+/* Hero slider: the active segment fills over the autoplay interval */
+@keyframes hero-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
   }
 }
