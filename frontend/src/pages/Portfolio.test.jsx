@@ -17,6 +17,7 @@ describe("Portfolio page filters", () => {
         id: 1,
         title: "Cloud platform",
         summary: "A published cloud solution.",
+        projectUrl: "https://example.com",
         featured: true,
         categories: [{ id: 1, name: "Cloud Systems" }],
         tags: ["React"],
@@ -56,5 +57,18 @@ describe("Portfolio page filters", () => {
       expect(screen.queryByRole("button", { name: "View details: Commerce platform" }))
         .not.toBeInTheDocument();
     });
+  });
+
+  it("keeps project websites closed from the project details modal", async () => {
+    render(
+      <MemoryRouter>
+        <Portfolio />
+      </MemoryRouter>,
+    );
+
+    fireEvent.click(await screen.findByRole("button", { name: "View details: Cloud platform" }));
+
+    expect(await screen.findByRole("dialog", { name: "Cloud platform" })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Visit project" })).not.toBeInTheDocument();
   });
 });

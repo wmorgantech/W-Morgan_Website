@@ -101,6 +101,16 @@ function TestimonialsSection() {
   const clientsWithoutQuote = items.filter((item) => !item.quote?.trim());
   const current = quotes[activeIndex];
 
+  useEffect(() => {
+    if (quotes.length < 2) return undefined;
+
+    const timer = window.setInterval(() => {
+      setActiveIndex((index) => (index + 1) % quotes.length);
+    }, 5000);
+
+    return () => window.clearInterval(timer);
+  }, [quotes.length]);
+
   const move = (offset) => {
     setActiveIndex((index) => (index + offset + quotes.length) % quotes.length);
   };

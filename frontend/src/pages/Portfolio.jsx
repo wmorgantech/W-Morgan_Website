@@ -210,21 +210,6 @@ function ProjectDialog({ entry, onClose }) {
             </div>
           )}
 
-          {project.url && (
-            <div className="mt-auto pt-8">
-              <a
-                href={project.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn btn-primary"
-              >
-                Visit project
-                <span className="btn-arrow" aria-hidden="true">
-                  <ArrowUpRight size={16} />
-                </span>
-              </a>
-            </div>
-          )}
         </div>
       </motion.section>
     </motion.div>
