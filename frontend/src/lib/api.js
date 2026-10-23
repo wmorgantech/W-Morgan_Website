@@ -64,24 +64,16 @@ export async function fetchPublicServices() {
   return getJson("/services");
 }
 
-export async function fetchPublicProducts() {
-  return getJson("/products");
-}
-
 export async function fetchPublicPortfolio() {
   return getJson("/portfolio");
 }
 
+export async function fetchPublicPortfolioCategories() {
+  return getJson("/portfolio-categories");
+}
+
 export async function fetchPublicTestimonials() {
   return getJson("/testimonials");
-}
-
-export async function fetchPublicTeam() {
-  return getJson("/team");
-}
-
-export async function fetchPublicTeamMember(id) {
-  return getJson(`/team/${encodeURIComponent(id)}`);
 }
 
 export async function fetchPublicSiteSettings() {

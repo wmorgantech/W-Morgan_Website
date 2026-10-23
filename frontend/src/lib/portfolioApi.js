@@ -4,41 +4,38 @@
  */
 
 /**
- * Portfolio categories. Projects have no separate category column: the category (or
- * categories) chosen for a project in Admin are saved in its `tags`, alongside its
- * technologies. A tag counts as a category when it matches a label or alias below.
- * Nothing is guessed from the title or description: a project with no category tag
- * simply shows no category label and appears under "All".
- * A filter is only offered when at least one project belongs to it.
- * Keep the labels in step with the category choices in admin/src/pages/Portfolio.jsx.
+ * Recognize legacy category tags while older project records are migrated. New
+ * category assignments come from the managed PortfolioCategory relation.
  */
-export const PORTFOLIO_FILTERS = [
-  {
-    label: "Web Development",
-    tags: ["web development", "website", "web design", "business website"],
-  },
-  {
-    label: "E-Commerce",
-    tags: ["e-commerce", "ecommerce", "e commerce", "online store"],
-  },
-  { label: "CRM", tags: ["crm", "customer relationship management"] },
-  {
-    label: "Mobile Apps",
-    tags: ["mobile apps", "mobile app", "mobile", "android", "ios"],
-  },
-  {
-    label: "UI/UX Design",
-    tags: ["ui/ux design", "ui/ux", "ui", "ux", "ui ux", "product design"],
-  },
-  {
-    label: "Custom Software",
-    tags: ["custom software", "software development", "enterprise software"],
-  },
-  {
-    label: "Cloud Solutions",
-    tags: ["cloud solutions", "cloud", "devops"],
-  },
-];
+const legacyCategoryTags = new Map([
+  ["web development", "Web Development"],
+  ["website", "Web Development"],
+  ["web design", "Web Development"],
+  ["business website", "Web Development"],
+  ["e-commerce", "E-Commerce"],
+  ["ecommerce", "E-Commerce"],
+  ["e commerce", "E-Commerce"],
+  ["online store", "E-Commerce"],
+  ["crm", "CRM"],
+  ["customer relationship management", "CRM"],
+  ["mobile apps", "Mobile Apps"],
+  ["mobile app", "Mobile Apps"],
+  ["mobile", "Mobile Apps"],
+  ["android", "Mobile Apps"],
+  ["ios", "Mobile Apps"],
+  ["ui/ux design", "UI/UX Design"],
+  ["ui/ux", "UI/UX Design"],
+  ["ui", "UI/UX Design"],
+  ["ux", "UI/UX Design"],
+  ["ui ux", "UI/UX Design"],
+  ["product design", "UI/UX Design"],
+  ["custom software", "Custom Software"],
+  ["software development", "Custom Software"],
+  ["enterprise software", "Custom Software"],
+  ["cloud solutions", "Cloud Solutions"],
+  ["cloud", "Cloud Solutions"],
+  ["devops", "Cloud Solutions"],
+]);
 
 function cleanText(value) {
   return typeof value === "string" ? value.trim() : "";
@@ -47,11 +44,18 @@ function cleanText(value) {
 // Category label for a tag, or null when the tag is a technology / free text.
 function categoryForTag(tag) {
   const key = String(tag).trim().toLowerCase();
-  return PORTFOLIO_FILTERS.find((filter) => filter.tags.includes(key))?.label || null;
+  return legacyCategoryTags.get(key) || null;
 }
 
 /** The project's categories, in the order they were saved in Admin (first = primary). */
 export function getProjectCategories(project) {
+  if (Array.isArray(project.categories) && project.categories.length) {
+    return project.categories
+      .map((category) =>
+        typeof category === "string" ? category.trim() : cleanText(category?.name),
+      )
+      .filter(Boolean);
+  }
   const tags = Array.isArray(project.tags) ? project.tags : [];
   return [...new Set(tags.map(categoryForTag).filter(Boolean))];
 }
@@ -82,6 +86,13 @@ export function safeLinkUrl(value) {
 export function normalizeProject(project, index) {
   const tags = Array.isArray(project.tags) ? project.tags : [];
   const categories = getProjectCategories(project);
+  const assignedCategoryNames = new Set(
+    (Array.isArray(project.categories) ? project.categories : [])
+      .map((category) =>
+        typeof category === "string" ? category.trim().toLowerCase() : cleanText(category?.name).toLowerCase(),
+      )
+      .filter(Boolean),
+  );
 
   return {
     ...project,
@@ -92,7 +103,11 @@ export function normalizeProject(project, index) {
     summary: project.summary || "",
     tags,
     // Category tags are shown as the category label, so only the rest are technologies.
-    technologies: tags.filter((tag) => !categoryForTag(tag)),
+    technologies: tags.filter(
+      (tag) =>
+        !categoryForTag(tag) &&
+        !assignedCategoryNames.has(String(tag).trim().toLowerCase()),
+    ),
     categories,
     category: categories[0] || "",
     image: validImage(project.coverImage),

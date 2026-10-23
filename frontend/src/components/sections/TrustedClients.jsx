@@ -54,25 +54,25 @@ function initialsOf(name) {
 
 function ClientItem({ client }) {
   return (
-    <div className="group flex shrink-0 items-center gap-3">
-      <div className="relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-[#0e1411]/10 bg-white shadow-[0_4px_14px_-8px_rgba(8,18,13,0.4)] transition-all duration-300 group-hover:-translate-y-0.5 group-hover:border-[#2faa7d]/50">
+    <div className="group flex w-32 shrink-0 flex-col items-center gap-2 text-center">
+      <div className="relative flex h-20 w-full items-center justify-center overflow-hidden rounded-xl border border-[#0e1411]/10 bg-white px-3 py-2 shadow-[0_4px_14px_-8px_rgba(8,18,13,0.22)] transition-all duration-300 group-hover:-translate-y-0.5 group-hover:border-[#2faa7d]/50 md:h-24">
         {client.logo ? (
           <img
             src={client.logo}
             alt={`${client.name} logo`}
-            className={`h-[80%] w-[80%] object-contain opacity-80 grayscale transition-all duration-300 group-hover:opacity-100 group-hover:grayscale-0 ${client.scale}`}
+            className={`h-full w-full object-contain ${client.scale}`}
           />
         ) : (
           <span
             aria-hidden="true"
-            className="font-mono text-xs font-medium text-[#176b4d]"
+            className="font-mono text-lg font-medium text-[#176b4d]"
           >
             {initialsOf(client.name)}
           </span>
         )}
       </div>
 
-      <span className="whitespace-nowrap text-[14px] font-semibold tracking-[-0.01em] text-[#2a332d] transition-colors duration-300 group-hover:text-[#0e1411]">
+      <span className="max-w-full truncate text-xs font-semibold tracking-[-0.01em] text-[#2a332d] transition-colors duration-300 group-hover:text-[#0e1411]">
         {client.name}
       </span>
     </div>
@@ -101,30 +101,28 @@ function TrustedClients() {
   if (!clients.length) return null;
 
   return (
-    <section className="relative overflow-hidden border-b border-[#0e1411]/10 bg-white py-7 md:py-8">
-      <div className="mx-auto grid max-w-7xl items-center gap-5 px-5 sm:px-8 lg:grid-cols-[auto_1fr] lg:gap-10 lg:px-12">
-        {/* Label */}
-        <div className="lg:w-56 lg:border-r lg:border-[#0e1411]/10 lg:pr-8">
+    <section className="relative overflow-hidden border-y border-[#0e1411]/10 bg-[#f6f6f1] py-8 md:py-10">
+      <div data-aos="fade-up" className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-12">
+        <div className="mb-6 text-center">
           <p className="mono-label text-[#176b4d]">Our Clients</p>
-          <h2 className="mt-1.5 font-serif text-[22px] leading-tight tracking-[-0.01em] text-[#0e1411] md:text-[24px]">
-            Trusted by leading companies
+          <h2 className="mt-1.5 font-serif text-[19px] leading-tight tracking-[-0.01em] text-[#0e1411] md:text-[22px]">
+            Trusted by businesses building what’s next
           </h2>
         </div>
-
         {/* Marquee */}
         <div className="relative w-full overflow-hidden">
-          <div className="pointer-events-none absolute inset-y-0 left-0 z-20 w-12 bg-gradient-to-r from-white to-transparent md:w-20" />
-          <div className="pointer-events-none absolute inset-y-0 right-0 z-20 w-12 bg-gradient-to-l from-white to-transparent md:w-20" />
+          <div className="pointer-events-none absolute inset-y-0 left-0 z-20 w-12 bg-gradient-to-r from-[#f6f6f1] to-transparent md:w-20" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 z-20 w-12 bg-gradient-to-l from-[#f6f6f1] to-transparent md:w-20" />
 
           <div className="animate-trusted-marquee flex w-max">
-            <div className="flex items-center gap-12 px-6 md:gap-16 md:px-8">
+            <div className="flex items-center gap-6 px-4 sm:gap-8 md:gap-10">
               {clients.map((client) => (
                 <ClientItem key={`first-${client.name}`} client={client} />
               ))}
             </div>
 
             {/* Duplicate set for seamless looping */}
-            <div className="flex items-center gap-12 px-6 md:gap-16 md:px-8" aria-hidden="true">
+            <div className="flex items-center gap-6 px-4 sm:gap-8 md:gap-10" aria-hidden="true">
               {clients.map((client) => (
                 <ClientItem key={`second-${client.name}`} client={client} />
               ))}

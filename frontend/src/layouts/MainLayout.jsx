@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { motion } from "framer-motion";
+import { MotionConfig, motion } from "framer-motion";
+import AOS from "aos";
 import Navbar from "../components/common/Navbar";
 import Footer from "../components/common/Footer";
 import ScrollProgressBar from "../components/common/ScrollProgressBar";
@@ -11,6 +12,28 @@ export default function MainLayout({ children }) {
   // Every route starts at the top of the page
   useEffect(() => {
     window.scrollTo(0, 0);
+  }, [pathname]);
+
+  // Scroll animations (AOS). Kept light: a short fade-up, played once. Skipped entirely for
+  // visitors who prefer reduced motion (AOS then leaves every element visible).
+  useEffect(() => {
+    const reduceMotion = () =>
+      typeof window.matchMedia === "function" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    AOS.init({
+      duration: 600,
+      easing: "ease-out-cubic",
+      offset: 50,
+      once: true,
+      disable: reduceMotion,
+    });
+  }, []);
+
+  // Pick up elements of the new page (AOS also watches for content added later, such as
+  // cards that arrive from the API).
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => AOS.refreshHard());
+    return () => window.cancelAnimationFrame(frame);
   }, [pathname]);
 
   // One delegated listener feeds the pointer-spotlight effect (.spot cards)
@@ -31,6 +54,7 @@ export default function MainLayout({ children }) {
   }, []);
 
   return (
+    <MotionConfig reducedMotion="user">
     <div className="min-h-screen">
       <a
         href="#main-content"
@@ -54,5 +78,6 @@ export default function MainLayout({ children }) {
 
       <Footer />
     </div>
+    </MotionConfig>
   );
 }

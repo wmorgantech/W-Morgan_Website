@@ -69,6 +69,21 @@ describe("project categories", () => {
     expect(project.categories).toEqual([]);
     expect(project.category).toBe("");
   });
+
+  it("uses managed category assignments from the portfolio API", () => {
+    const project = normalizeProject(
+      {
+        title: "Managed project",
+        tags: ["React"],
+        categories: [{ id: 12, name: "Cloud Modernization" }],
+        categoryIds: [12],
+      },
+      0,
+    );
+    expect(project.categories).toEqual(["Cloud Modernization"]);
+    expect(project.category).toBe("Cloud Modernization");
+    expect(project.technologies).toEqual(["React"]);
+  });
 });
 
 describe("client logo", () => {
