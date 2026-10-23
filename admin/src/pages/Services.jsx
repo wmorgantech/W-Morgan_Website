@@ -29,6 +29,8 @@ const fields = [
     label: "Publishing",
     type: "checkbox",
     checkboxLabel: "Publish on the public website",
+    defaultValue: true,
+    hint: "Published services appear on the Services page and in the homepage list (up to six). Uncheck to save this service as a draft.",
   },
 ];
 
@@ -39,7 +41,7 @@ export default function Services() {
     <AdminLayout>
       <ContentManager
         title="Services"
-        description="Add and manage the services shown on your website."
+        description="Manage the services displayed on your website. The homepage shows up to six published services; the Services page shows all published services."
         resource={siteContentResources.services}
         fields={fields}
         columns={[

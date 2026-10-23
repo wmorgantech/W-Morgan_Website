@@ -34,7 +34,15 @@ export default function Home() {
       <PortfolioSection />
       <IndustriesSection />
       <TechnologySection />
-      <FinalCTASection />
+      <FinalCTASection
+        heading="Have an Idea?"
+        accent="Let's Build It."
+        description="Ready to turn your vision into a digital product? Let's make it happen."
+        primaryLabel="Start a Conversation"
+        primaryHref="/contact"
+        secondaryLabel="Explore Our Work"
+        secondaryHref="/portfolio"
+      />
     </div>
   );
 }

@@ -33,15 +33,17 @@ describe('App shell', () => {
     expect(screen.getByRole("heading", { level: 1 }).textContent).toContain(
       "Technology That Understands Your Business. Engineering Solutions. Enabling Growth.",
     );
-    expect(screen.getByText("13+")).toBeInTheDocument();
+    expect(screen.getByText("15+")).toBeInTheDocument();
     expect(screen.getByText("Years of Experience")).toBeInTheDocument();
     expect(screen.getByText("100+")).toBeInTheDocument();
     expect(screen.getByText("Projects Done")).toBeInTheDocument();
     expect(screen.getByText("10+")).toBeInTheDocument();
     expect(screen.getByText("Total Products")).toBeInTheDocument();
-    expect(screen.getByText("1200+")).toBeInTheDocument();
-    expect(screen.getByText("Clients Over All India")).toBeInTheDocument();
+    expect(screen.getByText("1200")).toBeInTheDocument();
+    expect(screen.getByText("Trusted Clients")).toBeInTheDocument();
     expect(await screen.findByText("What We Do")).toBeInTheDocument();
+    expect(await screen.findByText("No services are published yet.")).toBeInTheDocument();
+    expect(screen.queryByText("Web Application Development")).not.toBeInTheDocument();
     expect(screen.getByText("Technology in Action")).toBeInTheDocument();
     expect(
       within(screen.getByRole("navigation", { name: "Primary navigation" }))

@@ -247,7 +247,15 @@ export default function About() {
       </section>
 
       {/* Existing CTA */}
-      <FinalCTASection />
+      <FinalCTASection
+        heading="Good Things Happen When"
+        accent="We Collaborate."
+        description="Get to know our team and how we create meaningful technology."
+        primaryLabel="Explore Our Services"
+        primaryHref="/services"
+        secondaryLabel="Get in Touch"
+        secondaryHref="/contact"
+      />
     </main>
   );
 }

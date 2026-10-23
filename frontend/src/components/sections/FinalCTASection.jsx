@@ -3,7 +3,15 @@ import Reveal from "../common/Reveal";
 import { paths } from "../../routes/paths";
 
 /** A short closing strip: one heading, one line, two compact buttons. */
-function FinalCTASection() {
+function FinalCTASection({
+  heading = "Have an Idea?",
+  accent = "Let's Build It.",
+  description = "Ready to turn your vision into a digital product? Let's make it happen.",
+  primaryLabel = "Start a Conversation",
+  primaryHref = paths.contact,
+  secondaryLabel = "Explore Our Work",
+  secondaryHref = paths.portfolio,
+}) {
   return (
     <section className="surface-dark aurora on-dark relative z-10 -mt-6 rounded-t-[2rem] bg-[#0a1610] py-10 md:py-12">
       <span aria-hidden="true" className="grain-overlay" />
@@ -13,24 +21,24 @@ function FinalCTASection() {
       >
         <div className="max-w-xl">
           <h2 className="display text-[clamp(1.5rem,2.6vw,2.1rem)] leading-tight tracking-[-0.03em] text-white">
-            Let&apos;s build <span className="text-[#ff3b30]">something</span> meaningful.
+            {heading} <span className="text-[#ff3b30]">{accent}</span>
           </h2>
           <p className="mt-2 text-sm text-white/60">
-            Have an idea or a product that needs to evolve? Let&apos;s talk.
+            {description}
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5">
           <Button
-            href={paths.contact}
+            href={primaryHref}
             arrow
             variant="light"
             className="!min-h-10 !pl-5 !text-[13px] [&_.btn-arrow]:!h-7 [&_.btn-arrow]:!w-7"
           >
-            Start a Conversation
+            {primaryLabel}
           </Button>
-          <Button href={paths.portfolio} variant="ghost" className="!min-h-10 !text-[13px]">
-            Explore Our Work
+          <Button href={secondaryHref} variant="ghost" className="!min-h-10 !text-[13px]">
+            {secondaryLabel}
           </Button>
         </div>
       </Reveal>

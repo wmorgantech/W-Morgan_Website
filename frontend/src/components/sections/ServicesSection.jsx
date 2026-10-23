@@ -7,13 +7,11 @@ import {
   CloudCog,
   PenTool,
   Workflow,
-  ShoppingBag,
-  BriefcaseBusiness,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { paths } from "../../routes/paths";
 import { fetchPublicServices } from "../../lib/api";
-import { ErrorState, LoadingState } from "../common/DataState";
+import { EmptyState, ErrorState, LoadingState } from "../common/DataState";
 import Reveal from "../common/Reveal";
 
 const iconMap = {
@@ -24,40 +22,6 @@ const iconMap = {
   PenTool,
   Workflow,
 };
-
-// Shown only while no services have been published in Admin yet.
-const coreServices = [
-  {
-    name: "Custom Software Development",
-    summary: "Purpose-built business software, designed around your processes and growth goals.",
-    icon: Code2,
-  },
-  {
-    name: "Web Application Development",
-    summary: "Secure, scalable web applications that make everyday work simpler.",
-    icon: Workflow,
-  },
-  {
-    name: "Mobile App Development",
-    summary: "Useful mobile experiences for customers, teams, and business operations.",
-    icon: Smartphone,
-  },
-  {
-    name: "E-Commerce Development",
-    summary: "Online stores and commerce systems built to support the way you sell.",
-    icon: ShoppingBag,
-  },
-  {
-    name: "Business Applications & ERP",
-    summary: "Connected tools for finance, operations, inventory, and reporting.",
-    icon: BriefcaseBusiness,
-  },
-  {
-    name: "API & System Integration",
-    summary: "Reliable integrations that help your software and services work together.",
-    icon: Workflow,
-  },
-];
 
 /** One service as a wide row: numeral, name, summary, and an arrow that fills on hover. */
 function ServiceRow({ service, index }) {
@@ -145,7 +109,7 @@ function ServicesSection() {
     };
   }, []);
 
-  const rows = status === "ready" ? items.slice(0, 6) : status === "empty" ? coreServices : [];
+  const rows = status === "ready" ? items.slice(0, 6) : [];
 
   return (
     <section className="surface-dark on-dark relative z-10 -mt-6 rounded-t-[2rem] bg-[#0a1610] py-12 md:py-16">
@@ -176,6 +140,9 @@ function ServicesSection() {
           <div>
             {status === "loading" && <LoadingState dark label="Loading services..." variant="rows" />}
             {status === "error" && <ErrorState dark message={errorMessage} />}
+            {status === "empty" && (
+              <EmptyState dark message="No services are published yet." />
+            )}
             {rows.length > 0 && (
               <ul className="border-b border-white/10">
                 {rows.map((service, index) => (

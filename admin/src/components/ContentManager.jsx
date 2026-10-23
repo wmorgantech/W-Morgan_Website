@@ -8,14 +8,14 @@ import ImageUploadField from "./ImageUploadField";
 ---------------------------------------------------------------- */
 
 function makeDraft(fields, record = {}) {
-  return Object.fromEntries(fields.map(({ name, type }) => {
+  return Object.fromEntries(fields.map(({ name, type, defaultValue }) => {
     const value = record[name];
     if (type === "tags") return [name, Array.isArray(value) ? value.join(", ") : ""];
     if (type === "lines") return [name, Array.isArray(value) ? value.join("\n") : ""];
     if (type === "multiSelect") {
       return [name, Array.isArray(value) ? value.map(Number) : []];
     }
-    if (type === "checkbox") return [name, Boolean(value)];
+    if (type === "checkbox") return [name, Boolean(value ?? defaultValue ?? false)];
     return [name, value ?? ""];
   }));
 }

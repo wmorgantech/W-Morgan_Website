@@ -269,7 +269,15 @@ export default function Services() {
       <ProcessSection />
 
       {/* Existing CTA */}
-      <FinalCTASection />
+      <FinalCTASection
+        heading="The Right Technology."
+        accent="The Right Solution."
+        description="Let's find the right digital solutions to move your business forward."
+        primaryLabel="Discuss Your Project"
+        primaryHref="/contact"
+        secondaryLabel="View Our Work"
+        secondaryHref="/portfolio"
+      />
     </main>
   );
 }

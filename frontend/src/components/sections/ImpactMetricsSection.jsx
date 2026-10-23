@@ -3,10 +3,10 @@ import { useInView } from "framer-motion";
 import Reveal from "../common/Reveal";
 
 const metrics = [
-  { value: 13, suffix: "+", label: "Years of Experience" },
+  { value: 15, suffix: "+", label: "Years of Experience" },
   { value: 100, suffix: "+", label: "Projects Done" },
   { value: 10, suffix: "+", label: "Total Products" },
-  { value: 1200, suffix: "+", label: "Clients Over All India" },
+  { value: 1200, label: "Trusted Clients" },
 ];
 
 const DURATION_MS = 1600;

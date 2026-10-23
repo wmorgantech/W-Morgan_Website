@@ -453,7 +453,15 @@ export default function Portfolio() {
       </section>
 
       {/* ================= CTA ================= */}
-      <FinalCTASection />
+      <FinalCTASection
+        heading="Your Next Success Story"
+        accent="Starts Here."
+        description="Explore our work and let's discuss what we can create together."
+        primaryLabel="Start a Project"
+        primaryHref="/contact"
+        secondaryLabel="Explore Services"
+        secondaryHref="/services"
+      />
 
       <AnimatePresence>
         {selected && (

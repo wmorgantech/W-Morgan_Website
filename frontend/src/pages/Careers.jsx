@@ -19,6 +19,7 @@ import { usePageMeta } from "../hooks/usePageMeta";
 import { paths } from "../routes/paths";
 import Reveal from "../components/common/Reveal";
 import { Link } from "react-router-dom";
+import FinalCTASection from "../components/sections/FinalCTASection";
 
 const ease = [0.22, 1, 0.36, 1];
 
@@ -465,6 +466,16 @@ export default function Careers() {
           )}
         </div>
       </section>
+
+      <FinalCTASection
+        heading="Build Your Future"
+        accent="With Us."
+        description="Bring your skills and grow with a team that builds meaningful technology."
+        primaryLabel="View Open Roles"
+        primaryHref="#openings"
+        secondaryLabel="Contact Us"
+        secondaryHref="/contact"
+      />
 
       {/* ==================================================
           APPLICATION MODAL

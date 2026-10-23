@@ -14,6 +14,7 @@ import {
 import { fetchPublicServices, submitContactInquiry } from "../lib/api";
 import { usePageMeta } from "../hooks/usePageMeta";
 import { usePublicSiteSettings } from "../hooks/usePublicSiteSettings";
+import FinalCTASection from "../components/sections/FinalCTASection";
 
 const ease = [0.22, 1, 0.36, 1];
 
@@ -369,7 +370,7 @@ export default function Contact() {
                    FORM
                 ================================================== */
 
-                <form onSubmit={handleSubmit} className="mt-8 grid gap-5">
+                <form id="contact-form" onSubmit={handleSubmit} className="mt-8 grid gap-5">
                   {/* ERROR */}
 
                   {errorMsg && (
@@ -518,23 +519,15 @@ export default function Contact() {
           BOTTOM CTA STRIP
       ================================================== */}
 
-      <section className="surface-dark aurora on-dark relative">
-        <span aria-hidden="true" className="grain-overlay" />
-        <div className="mx-auto flex max-w-7xl flex-col gap-4 px-5 py-14 sm:px-8 md:flex-row md:items-end md:justify-between lg:px-12">
-          <div>
-            <p className="mono-label text-[#7be0b4]">W Morgan Technologies</p>
-
-            <h2 className="display mt-3 text-[clamp(1.75rem,3.4vw,2.75rem)] text-white">
-              Have something <span className="text-[#ff3b30]">worth building?</span>
-            </h2>
-          </div>
-
-          <p className="lead max-w-sm md:text-right">
-            Share your idea, requirement or challenge. Let's turn it into a practical digital
-            solution.
-          </p>
-        </div>
-      </section>
+      <FinalCTASection
+        heading="Let's Talk About"
+        accent="Your Next Project."
+        description="Have a question or an idea? We'd love to hear from you."
+        primaryLabel="Tell Us About Your Project"
+        primaryHref="#contact-form"
+        secondaryLabel="Explore Services"
+        secondaryHref="/services"
+      />
     </main>
   );
 }

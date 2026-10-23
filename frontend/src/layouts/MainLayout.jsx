@@ -1,6 +1,7 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { MotionConfig, motion } from "framer-motion";
+import { ArrowUp } from "lucide-react";
 import AOS from "aos";
 import Navbar from "../components/common/Navbar";
 import Footer from "../components/common/Footer";
@@ -8,6 +9,7 @@ import ScrollProgressBar from "../components/common/ScrollProgressBar";
 
 export default function MainLayout({ children }) {
   const { pathname } = useLocation();
+  const [showScrollTop, setShowScrollTop] = useState(false);
 
   // Every route starts at the top of the page
   useEffect(() => {
@@ -35,6 +37,13 @@ export default function MainLayout({ children }) {
     const frame = window.requestAnimationFrame(() => AOS.refreshHard());
     return () => window.cancelAnimationFrame(frame);
   }, [pathname]);
+
+  useEffect(() => {
+    const onScroll = () => setShowScrollTop(window.scrollY > 320);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   // One delegated listener feeds the pointer-spotlight effect (.spot cards)
   useEffect(() => {
@@ -75,6 +84,23 @@ export default function MainLayout({ children }) {
       >
         {children}
       </motion.main>
+
+      <motion.button
+        type="button"
+        aria-label="Scroll to top"
+        onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+        initial={{ opacity: 0, scale: 0.9, y: 12 }}
+        animate={{
+          opacity: showScrollTop ? 1 : 0,
+          scale: showScrollTop ? 1 : 0.9,
+          y: showScrollTop ? 0 : 12,
+          pointerEvents: showScrollTop ? "auto" : "none",
+        }}
+        transition={{ duration: 0.2, ease: "easeOut" }}
+        className="fixed bottom-5 right-5 z-[70] flex h-12 w-12 items-center justify-center rounded-full border border-[#2faa7d]/30 bg-[#0d1b14] text-white shadow-[0_12px_28px_rgba(13,27,20,0.35)] transition-colors duration-200 hover:bg-[#14553d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2faa7d]/60 focus-visible:ring-offset-2"
+      >
+        <ArrowUp size={18} aria-hidden="true" />
+      </motion.button>
 
       <Footer />
     </div>
