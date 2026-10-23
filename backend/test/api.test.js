@@ -115,6 +115,61 @@ function createFixture({ uploadsDirectory } = {}) {
       sortOrder: 2,
     },
   ]);
+  const portfolioCategories = createModel();
+  const projectCategoryIds = new Map();
+  const baseProjectFindMany = projects.findMany;
+  const baseProjectCreate = projects.create;
+  const baseProjectUpdate = projects.update;
+  projects.findMany = async (query = {}) => {
+    const rows = await baseProjectFindMany(query);
+    return query.include?.categories
+      ? rows.map((project) => ({
+          ...project,
+          categories: (projectCategoryIds.get(project.id) || [])
+            .map((id) =>
+              portfolioCategories.rows.find((category) => category.id === id),
+            )
+            .filter(Boolean),
+        }))
+      : rows;
+  };
+  const includeProjectCategories = (project, include) =>
+    include?.categories
+      ? {
+          ...project,
+          categories: (projectCategoryIds.get(project.id) || [])
+            .map((id) =>
+              portfolioCategories.rows.find((category) => category.id === id),
+            )
+            .filter(Boolean),
+        }
+      : project;
+  projects.create = async ({ data, ...options }) => {
+    const { categories, ...projectData } = data;
+    const project = await baseProjectCreate({ data: projectData, ...options });
+    if (categories?.set || categories?.connect) {
+      projectCategoryIds.set(
+        project.id,
+        (categories.set || categories.connect).map(({ id }) => id),
+      );
+    }
+    return includeProjectCategories(project, options.include);
+  };
+  projects.update = async ({ where, data, ...options }) => {
+    const { categories, ...projectData } = data;
+    const project = await baseProjectUpdate({
+      where,
+      data: projectData,
+      ...options,
+    });
+    if (categories?.set) {
+      projectCategoryIds.set(
+        project.id,
+        categories.set.map(({ id }) => id),
+      );
+    }
+    return includeProjectCategories(project, options.include);
+  };
   const testimonials = createModel([
     { id: 1, quote: 'Featured', featured: true, sortOrder: 1 },
     { id: 2, quote: 'Unfeatured', featured: false, sortOrder: 2 },
@@ -135,6 +190,7 @@ function createFixture({ uploadsDirectory } = {}) {
     service: services,
     product: products,
     project: projects,
+    portfolioCategory: portfolioCategories,
     testimonial: testimonials,
     teamMember: teamMembers,
     contactInquiry: contactInquiries,
@@ -321,6 +377,12 @@ describe('Express API', () => {
       .send({ status: 'RESPONDED' })
       .expect(200);
     assert.equal(updated.body.status, 'RESPONDED');
+    await request(app).delete(`/api/contact/${response.body.id}`).expect(401);
+    await request(app)
+      .delete(`/api/contact/${response.body.id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200);
+    assert.equal(prisma.contactInquiry.rows.length, 0);
   });
 
   it('supports one-time admin setup, login, and active-account authorization', async () => {
@@ -405,6 +467,8 @@ describe('Express API', () => {
           slug: 'project',
           featured: true,
           sortOrder: 1,
+          categories: [],
+          categoryIds: [],
         },
       ]);
     await request(app)
@@ -427,7 +491,7 @@ describe('Express API', () => {
   });
 
   it('supports site settings and job application APIs with protected management', async () => {
-    const { app } = createFixture();
+    const { app, prisma } = createFixture();
     const token = await registerAdmin(app);
     const authorization = { Authorization: `Bearer ${token}` };
 
@@ -444,6 +508,28 @@ describe('Express API', () => {
         email: 'candidate@example.com',
       })
       .expect(201);
+    assert.equal(application.body.coverLetter, undefined);
+    assert.equal(application.body.resumeUrl, undefined);
+    assert.equal(application.body.portfolioUrl, undefined);
+
+    const linkedApplication = await request(app)
+      .post('/api/careers/applications')
+      .send({
+        jobOpeningId: 1,
+        candidateName: 'Candidate With Links',
+        email: 'linked@example.com',
+        resumeUrl: 'https://drive.google.com/file/d/example/view',
+        portfolioUrl: 'https://example.com/work',
+      })
+      .expect(201);
+    assert.equal(
+      linkedApplication.body.resumeUrl,
+      'https://drive.google.com/file/d/example/view',
+    );
+    assert.equal(
+      linkedApplication.body.portfolioUrl,
+      'https://example.com/work',
+    );
     await request(app).get('/api/careers/applications').expect(401);
     await request(app)
       .get('/api/careers/applications')
@@ -455,6 +541,16 @@ describe('Express API', () => {
       .send({ status: 'REVIEWING' })
       .expect(200);
     assert.equal(reviewedApplication.body.status, 'REVIEWING');
+    await request(app)
+      .delete(`/api/careers/applications/${application.body.id}`)
+      .expect(401);
+    await request(app)
+      .delete(`/api/careers/applications/${application.body.id}`)
+      .set(authorization)
+      .expect(200);
+    assert.ok(
+      !prisma.jobApplication.rows.some((row) => row.id === application.body.id),
+    );
 
     await request(app)
       .get('/api/careers/manage')
@@ -484,6 +580,8 @@ describe('Express API', () => {
         'Dno - 333- F2, Geetha Building,\nNehru St, Peranaidu Layout,\nRam Nagar, Coimbatore,\nTamil Nadu 641009',
       workingHours: '',
       logoUrl: '',
+      aboutImageUrl: '',
+      aboutVideoUrl: '',
     });
 
     await request(app)
@@ -493,6 +591,8 @@ describe('Express API', () => {
         contactEmail: 'hello@example.com',
         workingHours: 'Weekdays',
         logoUrl: '/api/uploads/site-logo.svg',
+        aboutImageUrl: '/api/uploads/about.png',
+        aboutVideoUrl: 'https://youtu.be/abcdefghijk',
       })
       .expect(200, {
         contactEmail: 'hello@example.com',
@@ -501,6 +601,8 @@ describe('Express API', () => {
           'Dno - 333- F2, Geetha Building,\nNehru St, Peranaidu Layout,\nRam Nagar, Coimbatore,\nTamil Nadu 641009',
         workingHours: 'Weekdays',
         logoUrl: '/api/uploads/site-logo.svg',
+        aboutImageUrl: '/api/uploads/about.png',
+        aboutVideoUrl: 'https://youtu.be/abcdefghijk',
       });
     await request(app)
       .get('/api/admin/settings')
@@ -512,6 +614,8 @@ describe('Express API', () => {
           'Dno - 333- F2, Geetha Building,\nNehru St, Peranaidu Layout,\nRam Nagar, Coimbatore,\nTamil Nadu 641009',
         workingHours: 'Weekdays',
         logoUrl: '/api/uploads/site-logo.svg',
+        aboutImageUrl: '/api/uploads/about.png',
+        aboutVideoUrl: 'https://youtu.be/abcdefghijk',
       });
     await request(app).get('/api/settings/public').expect(200, {
       contactEmail: 'hello@example.com',
@@ -520,7 +624,55 @@ describe('Express API', () => {
         'Dno - 333- F2, Geetha Building,\nNehru St, Peranaidu Layout,\nRam Nagar, Coimbatore,\nTamil Nadu 641009',
       workingHours: 'Weekdays',
       logoUrl: '/api/uploads/site-logo.svg',
+      aboutImageUrl: '/api/uploads/about.png',
+      aboutVideoUrl: 'https://youtu.be/abcdefghijk',
     });
+    await request(app)
+      .put('/api/admin/settings')
+      .set(authorization)
+      .send({ aboutVideoUrl: 'javascript:alert(1)' })
+      .expect(400);
+  });
+
+  it('validates optional application URLs and accepts Google Drive resume links', async () => {
+    const { app } = createFixture();
+    const googleDriveApplication = await request(app)
+      .post('/api/careers/applications')
+      .send({
+        jobOpeningId: 1,
+        candidateName: 'Candidate With Drive Resume',
+        email: 'drive@example.com',
+        resumeUrl: 'https://drive.google.com/file/d/example/view',
+        portfolioUrl: 'https://example.com/work',
+      })
+      .expect(201);
+    assert.equal(
+      googleDriveApplication.body.resumeUrl,
+      'https://drive.google.com/file/d/example/view',
+    );
+    assert.equal(
+      googleDriveApplication.body.portfolioUrl,
+      'https://example.com/work',
+    );
+
+    await request(app)
+      .post('/api/careers/applications')
+      .send({
+        jobOpeningId: 1,
+        candidateName: 'Invalid Resume Link',
+        email: 'invalid-resume@example.com',
+        resumeUrl: 'javascript:alert(1)',
+      })
+      .expect(400);
+    await request(app)
+      .post('/api/careers/applications')
+      .send({
+        jobOpeningId: 1,
+        candidateName: 'Invalid Portfolio Link',
+        email: 'invalid-portfolio@example.com',
+        portfolioUrl: 'not a URL',
+      })
+      .expect(400);
   });
 
   it('manages testimonials: optional quote, location, publish and unpublish', async () => {
@@ -719,6 +871,82 @@ describe('Express API', () => {
       .set(authorization)
       .send({ title: 'No logo' })
       .expect(201);
+  });
+
+  it('manages ordered portfolio categories and project assignments', async () => {
+    const { app } = createFixture();
+    const token = await registerAdmin(app);
+    const authorization = { Authorization: 'Bearer ' + token };
+
+    await request(app).get('/api/portfolio-categories/manage').expect(401);
+    const web = await request(app)
+      .post('/api/portfolio-categories')
+      .set(authorization)
+      .send({ name: 'Web Platforms', sortOrder: 2, isActive: true })
+      .expect(201);
+    const mobile = await request(app)
+      .post('/api/portfolio-categories')
+      .set(authorization)
+      .send({ name: 'Mobile', sortOrder: 1, isActive: true })
+      .expect(201);
+    assert.equal(web.body.slug, 'web-platforms');
+    assert.deepEqual(
+      (
+        await request(app).get('/api/portfolio-categories').expect(200)
+      ).body.map(({ name }) => name),
+      ['Mobile', 'Web Platforms'],
+    );
+
+    const project = await request(app)
+      .post('/api/portfolio')
+      .set(authorization)
+      .send({
+        title: 'Ordered project',
+        featured: true,
+        sortOrder: 0,
+        categoryIds: [web.body.id],
+      })
+      .expect(201);
+    assert.deepEqual(project.body.categoryIds, [web.body.id]);
+    assert.equal(project.body.categories[0].name, 'Web Platforms');
+    assert.equal(
+      (await request(app).get('/api/portfolio').expect(200)).body[0].id,
+      project.body.id,
+    );
+
+    const updated = await request(app)
+      .patch('/api/portfolio/' + project.body.id)
+      .set(authorization)
+      .send({ categoryIds: [mobile.body.id], sortOrder: 3 })
+      .expect(200);
+    assert.deepEqual(updated.body.categoryIds, [mobile.body.id]);
+    assert.equal(updated.body.sortOrder, 3);
+    assert.equal(
+      (await request(app).get('/api/portfolio').expect(200)).body[0].id,
+      1,
+    );
+
+    await request(app)
+      .patch('/api/portfolio/' + project.body.id)
+      .set(authorization)
+      .send({ categoryIds: ['not-an-id'] })
+      .expect(400);
+    await request(app)
+      .patch('/api/portfolio/' + project.body.id)
+      .set(authorization)
+      .send({ sortOrder: -1 })
+      .expect(400);
+    await request(app)
+      .patch('/api/portfolio-categories/' + web.body.id)
+      .set(authorization)
+      .send({ isActive: false })
+      .expect(200);
+    assert.deepEqual(
+      (
+        await request(app).get('/api/portfolio-categories').expect(200)
+      ).body.map(({ name }) => name),
+      ['Mobile'],
+    );
   });
 
   it('supports protected product, project, testimonial, and opening CRUD', async () => {

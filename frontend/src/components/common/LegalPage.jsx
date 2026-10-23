@@ -19,16 +19,17 @@ export default function LegalPage({
 
   return (
     <main className="bg-[#f6f6f1] text-[#0e1411]">
-      <section className="border-b border-[#0e1411]/10">
-        <div className="mx-auto max-w-7xl px-5 py-12 sm:px-8 md:py-16 lg:px-12">
+      <section className="surface-dark aurora on-dark relative">
+        <span aria-hidden="true" className="grain-overlay" />
+        <div className="mx-auto max-w-7xl px-5 pb-16 pt-10 sm:px-8 md:pb-20 md:pt-12 lg:px-12">
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
           >
-            <p className="eyebrow">Legal</p>
-            <h1 className="display mt-5 text-[clamp(2.2rem,4.6vw,3.5rem)]">{title}</h1>
-            <p className="mt-4 font-mono text-[11px] uppercase tracking-[0.14em] text-[#5c655f]">
+            <p className="eyebrow eyebrow-light">Legal</p>
+            <h1 className="display mt-4 text-[clamp(2rem,4vw,3rem)] tracking-[-0.035em] text-white">{title}</h1>
+            <p className="mt-4 font-mono text-[11px] uppercase tracking-[0.14em] text-white/55">
               Last updated: {lastUpdated}
             </p>
             {intro && <p className="lead mt-5 max-w-2xl">{intro}</p>}
@@ -36,7 +37,8 @@ export default function LegalPage({
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-5 py-12 sm:px-8 md:py-16 lg:px-12">
+      <section className="relative z-10 -mt-8 rounded-t-[2rem] bg-[#f6f6f1] pb-4 pt-2">
+        <div className="mx-auto max-w-7xl px-5 py-12 sm:px-8 md:py-16 lg:px-12">
         <div className="grid gap-10 lg:grid-cols-[14rem_1fr] lg:gap-16">
           {/* On this page */}
           <nav aria-label="On this page" className="hidden lg:block">
@@ -93,6 +95,7 @@ export default function LegalPage({
               Questions about this page? <Link to={paths.contact} className="font-medium text-[#176b4d] underline underline-offset-2">Contact us</Link>.
             </p>
           </article>
+        </div>
         </div>
       </section>
     </main>

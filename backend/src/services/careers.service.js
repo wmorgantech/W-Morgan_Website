@@ -83,6 +83,10 @@ async function updateApplication(prisma, id, status) {
   return prisma.jobApplication.update({ where: { id }, data: { status } });
 }
 
+async function removeApplication(prisma, id) {
+  return prisma.jobApplication.delete({ where: { id } });
+}
+
 module.exports = {
   jobOpeningStatuses,
   employmentTypes,
@@ -95,4 +99,5 @@ module.exports = {
   createApplication,
   listApplications,
   updateApplication,
+  removeApplication,
 };

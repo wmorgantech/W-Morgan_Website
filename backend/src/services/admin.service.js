@@ -5,6 +5,8 @@ const DEFAULT_PUBLIC_SETTINGS = {
     'Dno - 333- F2, Geetha Building,\nNehru St, Peranaidu Layout,\nRam Nagar, Coimbatore,\nTamil Nadu 641009',
   workingHours: '',
   logoUrl: '',
+  aboutImageUrl: '',
+  aboutVideoUrl: '',
 };
 
 async function getDashboardSummary(prisma) {

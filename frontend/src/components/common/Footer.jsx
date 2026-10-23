@@ -40,7 +40,7 @@ function Footer() {
     <footer className="bg-[#0d1b14] text-white">
 
       <div className="relative mx-auto max-w-7xl px-5 pb-6 pt-12 sm:px-8">
-        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-12 lg:gap-8">
+        <div data-aos="fade-up" data-aos-offset="0" className="grid gap-10 sm:grid-cols-2 lg:grid-cols-12 lg:gap-8">
           {/* Brand */}
           <div className="lg:col-span-5">
             <Link

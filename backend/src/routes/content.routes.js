@@ -62,6 +62,7 @@ function createContentValidation(
   arrayFields,
   booleanFields,
   choices = {},
+  idArrayFields = [],
 ) {
   const validators = [
     ...stringFields(fields, requiredFields),
@@ -70,6 +71,10 @@ function createContentValidation(
       body(`${field}.*`)
         .isString()
         .isLength({ max: arrayItemLimits[field] || 200 }),
+    ]),
+    ...idArrayFields.flatMap((field) => [
+      body(field).optional().isArray({ max: 40 }),
+      body(`${field}.*`).isInt({ min: 1 }).toInt(),
     ]),
     ...Object.entries(choices).map(([field, values]) =>
       body(field).optional().isIn(values),
@@ -81,6 +86,7 @@ function createContentValidation(
   return validateBody(validators, [
     ...fields,
     ...arrayFields,
+    ...idArrayFields,
     ...booleanFields,
     'sortOrder',
   ]);
@@ -109,6 +115,26 @@ const definitions = {
     model: 'project',
     slugSource: 'title',
     publicWhere: { featured: true },
+    orderBy: [{ sortOrder: 'asc' }, { id: 'asc' }],
+    include: { categories: true },
+    prepareData: (data, operation) => {
+      const { categoryIds, ...projectData } = data;
+      return categoryIds === undefined
+        ? projectData
+        : {
+            ...projectData,
+            categories: {
+              [operation === 'create' ? 'connect' : 'set']: categoryIds.map(
+                (id) => ({ id }),
+              ),
+            },
+          };
+    },
+    transform: (project) => ({
+      ...project,
+      categories: project.categories || [],
+      categoryIds: (project.categories || []).map(({ id }) => id),
+    }),
     fields: [
       'title',
       'slug',
@@ -121,7 +147,18 @@ const definitions = {
     ],
     required: ['title'],
     arrays: ['tags'],
+    idArrays: ['categoryIds'],
     booleans: ['featured'],
+  },
+  'portfolio-categories': {
+    model: 'portfolioCategory',
+    slugSource: 'name',
+    publicWhere: { isActive: true },
+    orderBy: [{ sortOrder: 'asc' }, { id: 'asc' }],
+    fields: ['name', 'slug'],
+    required: ['name'],
+    arrays: [],
+    booleans: ['isActive'],
   },
   testimonials: {
     model: 'testimonial',
@@ -169,6 +206,7 @@ function createContentRouter(prisma, config, jwtSecret) {
     config.arrays,
     config.booleans,
     config.choices,
+    config.idArrays,
   );
   const updateValidation = createContentValidation(
     config.fields,
@@ -176,6 +214,7 @@ function createContentRouter(prisma, config, jwtSecret) {
     config.arrays,
     config.booleans,
     config.choices,
+    config.idArrays,
   );
   const idValidation = validateParams([param('id').isInt({ min: 1 })]);
 

@@ -12,4 +12,13 @@ async function updateInquiryStatus(prisma, id, status) {
   return prisma.contactInquiry.update({ where: { id }, data: { status } });
 }
 
-module.exports = { createInquiry, listInquiries, updateInquiryStatus };
+async function removeInquiry(prisma, id) {
+  return prisma.contactInquiry.delete({ where: { id } });
+}
+
+module.exports = {
+  createInquiry,
+  listInquiries,
+  updateInquiryStatus,
+  removeInquiry,
+};
