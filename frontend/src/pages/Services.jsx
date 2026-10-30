@@ -38,7 +38,7 @@ const technologies = [
   },
   {
     category: "Backend",
-    items: ["Node.js", "Express.js", "NestJS"],
+    items: ["Node.js", "Express.js", "NestJS", "ASP.NET"],
   },
   {
     category: "Database",

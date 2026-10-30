@@ -365,6 +365,8 @@ describe('Express API', () => {
         email: 'PERSON@EXAMPLE.COM',
         message: 'Hello',
         phone: '+1 555',
+        company: 'Example Company',
+        service: 'Web Development',
       })
       .expect(201);
     assert.equal(response.body.email, 'person@example.com');
@@ -383,6 +385,24 @@ describe('Express API', () => {
       .set('Authorization', `Bearer ${token}`)
       .expect(200);
     assert.equal(prisma.contactInquiry.rows.length, 0);
+  });
+
+  it('accepts contact submissions without optional fields', async () => {
+    const { app, prisma } = createFixture();
+
+    const response = await request(app)
+      .post('/api/contact')
+      .send({
+        phone: '+1 555',
+        company: 'Example Company',
+        service: 'Web Development',
+      })
+      .expect(201);
+
+    assert.equal(response.body.email, null);
+    assert.equal(response.body.name, undefined);
+    assert.equal(response.body.message, undefined);
+    assert.equal(prisma.contactInquiry.rows.length, 1);
   });
 
   it('supports one-time admin setup, login, and active-account authorization', async () => {
@@ -1064,6 +1084,9 @@ describe('Express API', () => {
           name: 'Visitor',
           email: `visitor${attempt}@example.com`,
           message: 'Hello',
+          phone: '+1 555',
+          company: 'Example Company',
+          service: 'Web Development',
         })
         .expect(201);
     }
@@ -1073,6 +1096,9 @@ describe('Express API', () => {
         name: 'Visitor',
         email: 'visitor6@example.com',
         message: 'Hello',
+        phone: '+1 555',
+        company: 'Example Company',
+        service: 'Web Development',
       })
       .expect(429);
     assert.equal(limited.body.statusCode, 429);

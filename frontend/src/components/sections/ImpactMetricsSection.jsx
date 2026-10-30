@@ -5,8 +5,8 @@ import Reveal from "../common/Reveal";
 const metrics = [
   { value: 15, suffix: "+", label: "Years of Experience" },
   { value: 100, suffix: "+", label: "Projects Done" },
-  { value: 10, suffix: "+", label: "Total Products" },
-  { value: 1200, label: "Trusted Clients" },
+  { value: 10, suffix: "+", label: "Technologies" },
+  { value: 500, label: "Trusted Clients" },
 ];
 
 const DURATION_MS = 1600;

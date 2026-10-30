@@ -38,8 +38,8 @@ describe('App shell', () => {
     expect(screen.getByText("100+")).toBeInTheDocument();
     expect(screen.getByText("Projects Done")).toBeInTheDocument();
     expect(screen.getByText("10+")).toBeInTheDocument();
-    expect(screen.getByText("Total Products")).toBeInTheDocument();
-    expect(screen.getByText("1200")).toBeInTheDocument();
+    expect(screen.getByText("Technologies")).toBeInTheDocument();
+    expect(screen.getByText("500")).toBeInTheDocument();
     expect(screen.getByText("Trusted Clients")).toBeInTheDocument();
     expect(await screen.findByText("What We Do")).toBeInTheDocument();
     expect(await screen.findByText("No services are published yet.")).toBeInTheDocument();

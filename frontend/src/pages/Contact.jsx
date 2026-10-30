@@ -102,17 +102,28 @@ export default function Contact() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const phone = formData.phone.trim();
+    const company = formData.company.trim();
+    const service = formData.service.trim();
+
+    if (!phone || !company || !service) {
+      setErrorMsg(
+        "Please provide a phone number, company / organisation, and service required.",
+      );
+      return;
+    }
+
     setSubmitting(true);
     setErrorMsg("");
 
     try {
       const res = await submitContactInquiry({
-        name: formData.name.trim(),
-        email: formData.email.trim(),
-        phone: formData.phone.trim() || undefined,
-        company: formData.company.trim() || undefined,
-        service: formData.service || undefined,
-        message: formData.message.trim(),
+        name: formData.name.trim() || undefined,
+        email: formData.email.trim() || undefined,
+        phone,
+        company,
+        service,
+        message: formData.message.trim() || undefined,
       });
 
       if (res && res.id) {
@@ -388,12 +399,11 @@ export default function Contact() {
                   <div className="grid gap-5 sm:grid-cols-2">
                     <div>
                       <label htmlFor="contact-name" className={labelClass}>
-                        Your Name *
+                        Your Name (Optional)
                       </label>
                       <input
                         id="contact-name"
                         type="text"
-                        required
                         autoComplete="name"
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -404,12 +414,11 @@ export default function Contact() {
 
                     <div>
                       <label htmlFor="contact-email" className={labelClass}>
-                        Email Address *
+                        Email Address (Optional)
                       </label>
                       <input
                         id="contact-email"
                         type="email"
-                        required
                         autoComplete="email"
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -424,11 +433,12 @@ export default function Contact() {
                   <div className="grid gap-5 sm:grid-cols-2">
                     <div>
                       <label htmlFor="contact-phone" className={labelClass}>
-                        Phone Number
+                        Phone Number *
                       </label>
                       <input
                         id="contact-phone"
                         type="tel"
+                        required
                         autoComplete="tel"
                         value={formData.phone}
                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
@@ -439,11 +449,12 @@ export default function Contact() {
 
                     <div>
                       <label htmlFor="contact-company" className={labelClass}>
-                        Company / Organisation
+                        Company / Organisation *
                       </label>
                       <input
                         id="contact-company"
                         type="text"
+                        required
                         autoComplete="organization"
                         value={formData.company}
                         onChange={(e) => setFormData({ ...formData, company: e.target.value })}
@@ -457,16 +468,17 @@ export default function Contact() {
 
                   <div>
                     <label htmlFor="contact-service" className={labelClass}>
-                      Service Required
+                      Service Required *
                     </label>
 
                     <select
                       id="contact-service"
+                      required
                       value={formData.service}
                       onChange={(e) => setFormData({ ...formData, service: e.target.value })}
                       className={`${fieldClass} cursor-pointer`}
                     >
-                      <option value="">Select a service (optional)</option>
+                      <option value="">Select a service</option>
                       {serviceOptions.map((option) => (
                         <option key={option} value={option}>
                           {option}
@@ -480,13 +492,12 @@ export default function Contact() {
 
                   <div>
                     <label htmlFor="contact-message" className={labelClass}>
-                      Project Details / Message *
+                      Project Details / Message (Optional)
                     </label>
 
                     <textarea
                       id="contact-message"
                       rows={5}
-                      required
                       value={formData.message}
                       onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                       className={`${fieldClass} resize-none`}

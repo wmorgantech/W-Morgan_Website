@@ -1,6 +1,6 @@
 async function createInquiry(prisma, dto) {
   return prisma.contactInquiry.create({
-    data: { ...dto, email: dto.email.toLowerCase().trim() },
+    data: { ...dto, email: dto.email?.trim().toLowerCase() || null },
   });
 }
 
